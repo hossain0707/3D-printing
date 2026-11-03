@@ -34,7 +34,7 @@ Design a personalized, cute cartoon miniature with on-device photo analysis, int
 > [!IMPORTANT]
 > **Current maturity: publicly deployed interactive design studio, not a paid production store.** The model generator, editor, 3D preview, regeneration, session-level approval, and production-*candidate* export are implemented. Paid checkout, durable orders, customer/admin authentication, supplier-approved printer files and physical print validation **are not yet completed**. Please do not advertise this release as an automated photo-perfect 3D reconstruction service.
 
-## 🎯 Project vision
+## Project vision
 
 MINIMO Studio aims to make personalized **full-color chibi figurines** accessible through a delightful web experience—without asking customers to learn 3D modeling, buy equipment or install a mobile app.
 
@@ -53,7 +53,7 @@ Our current release demonstrates the design and export stages. The secure order-
 | **Actual 3D** | Rotatable, zoomable Three.js mesh | More informative than a static AI picture |
 | **Production handoff** | GLB + OBJ/MTL/PNG + manifest | A concrete input for operator and supplier checks |
 
-## 🎬 Animated customer-to-print journey
+## Animated customer-to-print journey
 
 <div align="center">
 
@@ -72,7 +72,7 @@ Our current release demonstrates the design and export stages. The secure order-
 
 **Try it now:** [Live 3D customization studio](https://minimo-3d-printing.vercel.app/#studio)
 
-## ✨ Features & implementation status
+## Features & implementation status
 
 | Module | Implemented capability | Status |
 |:--|:--|:--:|
@@ -96,7 +96,7 @@ Our current release demonstrates the design and export stages. The secure order-
 > [!NOTE]
 > The current 3D engine is **template/procedural-based**. The optional AI component performs facial landmark analysis; the color picker performs pixel sampling. This is **not** an end-to-end diffusion model that recreates an exact person from one photograph. Hidden surfaces, face likeness, garments and patterns require estimation and human review.
 
-## 🏗️ System architecture
+## System architecture
 
 ~~~mermaid
 flowchart TB
@@ -136,7 +136,7 @@ flowchart TB
 
 Explore the complete [architecture documentation](docs/ARCHITECTURE.md), including trust boundaries and a proposed commerce service.
 
-## 📁 Repository structure
+## Repository structure
 
 ~~~text
 3D-printing/
@@ -158,7 +158,7 @@ Explore the complete [architecture documentation](docs/ARCHITECTURE.md), includi
 └── README.md
 ~~~
 
-## 🚀 Quick start
+## Quick start
 
 ### Requirements
 
@@ -192,7 +192,7 @@ The smoke test verifies essential files and source hooks, not full browser funct
 
 **Current public deployment:** **https://minimo-3d-printing.vercel.app/**. This deployment is online, but automatic GitHub-to-Vercel synchronization has **not yet been configured** for this repo.
 
-## 🖨️ Manufacturing handoff
+## Manufacturing handoff
 
 A customer-approved browser design can be exported as:
 
@@ -221,7 +221,7 @@ minimo-approved-v{version}-{size}mm.zip
 
 **Operator reference:** [Full-Color Printing Quality Assurance](docs/PRINTING-QA.md).
 
-## 🔒 Privacy, reliability & trust
+## Privacy, reliability & trust
 
 - Photos are processed **in the browser** and are not uploaded to a dedicated MINIMO server in the current release.
 - Third-party CDN libraries and optional landmark-model files are downloaded to run locally; audit and self-host them for commercial use.
@@ -230,7 +230,7 @@ minimo-approved-v{version}-{size}mm.zip
 - Before commercial launch: implement authentication, role separation, private object storage, rate limits, consent/retention rules, server-side pricing, verified payment events, audit logs and operational monitoring.
 - Confirm customer permission to use likenesses, logos, copyrighted outfits or other protected assets.
 
-## 🗺️ Version roadmap
+## Version roadmap
 
 ~~~mermaid
 flowchart LR
@@ -261,7 +261,7 @@ flowchart LR
 
 See [the full commercial launch checklist](docs/GO-LIVE.md).
 
-## ⚖️ License & ownership
+## License & ownership
 
 **© 2026 Md Najmul Hossain — All rights reserved.**
 
@@ -273,7 +273,7 @@ This repository's original code, design, documentation, brand artwork and modeli
 
 <div align="center">
 
-### Small figure. Big personality. ✳
+### Small figure. Big personality.
 
 **[Launch the live studio](https://minimo-3d-printing.vercel.app/)** · **[Inspect the architecture](docs/ARCHITECTURE.md)** · **[Review manufacturing readiness](docs/PRINTING-QA.md)**
 
