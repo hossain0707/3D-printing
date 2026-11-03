@@ -9,7 +9,7 @@
 
 ## Runtime diagram
 
-\`\`\`mermaid
+```mermaid
 flowchart TB
   UI[Static HTML/CSS UX] --> Upload[Local File API]
   Upload --> Canvas[Canvas pixel sampling]
@@ -24,7 +24,7 @@ flowchart TB
   Approval -->|Locked| Exports[GLTF + OBJ/MTL + texture PNGs]
   Exports --> ZIP[ZIP browser download]
   ZIP --> Review[Human QA and printing service]
-\`\`\`
+```
 
 ## Current modules
 - index.html: accessible single-page customer journey.
@@ -44,7 +44,7 @@ flowchart TB
 
 ## Planned V3 service architecture (NOT currently connected)
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
   Client[Client browser] --> API[Authenticated API / rate limits]
   API --> Storage[Private object storage / signed upload]
@@ -56,7 +56,7 @@ flowchart LR
   API --> PSP[Verified hosted payment gateway]
   PSP -->|signed webhook| DB
   Supplier --> Ship[Shipping fulfillment]
-\`\`\`
+```
 
 ### Recommended tables (after selecting a dedicated backend)
 - customers: id, email, verified status, created_at.
