@@ -104,7 +104,9 @@ def test_private_project_worker_api(monkeypatch):
         package=delivery/"print-candidate.zip"
         with zipfile.ZipFile(package,"w") as z:
             z.writestr("README-BEFORE-PRINTING.txt","Test double only")
-        return {"preview_path":str(preview),"package_path":str(package),"report_path":str(report)}
+        return {"preview_path":str(preview.relative_to(settings.data_dir)),
+                "package_path":str(package.relative_to(settings.data_dir)),
+                "report_path":str(report.relative_to(settings.data_dir))}
 
     monkeypatch.setattr(worker_module,"run_reconstruction",mocked_gpu_reconstruction)
     assert worker_module.process_next(api_module.settings) is True

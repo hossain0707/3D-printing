@@ -78,6 +78,17 @@ def authorize(pid: str, token: str | None) -> sqlite3.Row:
     return row
 
 
+def artifact_path(relative: str) -> Path:
+    """Resolve server-owned relative artifacts under private persistent storage."""
+    path = Path(relative)
+    if path.is_absolute():
+        raise HTTPException(500, "Invalid artifact location")
+    resolved = (settings.data_dir / path).resolve()
+    if not resolved.is_relative_to(settings.data_dir):
+        raise HTTPException(500, "Artifact location escapes private storage")
+    return resolved
+
+
 def require_admin(x_admin_key: Annotated[str | None, Header()] = None) -> None:
     if not settings.admin_key:
         raise HTTPException(503, "Operator access is not configured")
@@ -274,7 +285,7 @@ def get_version(pid: str, vid: str):
 def preview(pid: str, vid: str, token: str | None = Depends(owner_token)):
     authorize(pid, token)
     version = get_version(pid, vid)
-    return FileResponse(version["preview_path"], media_type="model/gltf-binary",
+    return FileResponse(artifact_path(version["preview_path"]), media_type="model/gltf-binary",
                         headers={"Content-Disposition":"inline; filename=replica.glb"})
 
 
@@ -282,7 +293,7 @@ def preview(pid: str, vid: str, token: str | None = Depends(owner_token)):
 def report(pid: str, vid: str, token: str | None = Depends(owner_token)):
     authorize(pid, token)
     version = get_version(pid, vid)
-    return FileResponse(version["report_path"], media_type="application/json",
+    return FileResponse(artifact_path(version["report_path"]), media_type="application/json",
                         headers={"Content-Disposition":"inline; filename=qa-report.json"})
 
 
@@ -301,7 +312,7 @@ def download(pid: str, vid: str, token: str | None = Depends(owner_token)):
     version = get_version(pid, vid)
     if not version["customer_approved"]:
         raise HTTPException(409, "Approve the real reconstruction before download")
-    return FileResponse(version["package_path"], media_type="application/zip",
+    return FileResponse(artifact_path(version["package_path"]), media_type="application/zip",
                         filename=f"minimo-realistic-{vid}.zip")
 
 
@@ -336,7 +347,7 @@ def admin_package(vid: str):
         row=db.execute("SELECT package_path FROM versions WHERE id=?", (vid,)).fetchone()
     if row is None:
         raise HTTPException(404, "Version not found")
-    return FileResponse(row["package_path"], media_type="application/zip",
+    return FileResponse(artifact_path(row["package_path"]), media_type="application/zip",
                         filename=f"minimo-operator-{vid}.zip")
 
 

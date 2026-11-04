@@ -114,7 +114,7 @@ def run_reconstruction(folder, job_id, version_id, height_mm, quality, settings,
         "--",str(obj),str(preview),str(printable),str(height_mm),str(report))
     require(preview,1024);require(report,100)
     if not (list(printable.glob("*.obj")) and list(printable.glob("*.mtl")) and
-            (list(printable.glob("*.png"))+list(printable.glob("*.jpg")))):
+            (list(printable.rglob("*.png"))+list(printable.rglob("*.jpg"))+list(printable.rglob("*.jpeg")))):
         raise ReconstructionError("Incomplete UV/textured print package")
     qa=json.loads(report.read_text(encoding="utf-8"))
     if qa.get("status")!="REVIEW_REQUIRED":
@@ -124,9 +124,9 @@ def run_reconstruction(folder, job_id, version_id, height_mm, quality, settings,
     with zipfile.ZipFile(package,"w",zipfile.ZIP_DEFLATED,compresslevel=5) as zipf:
         zipf.write(preview,"preview/reconstruction.glb")
         zipf.write(report,"qa-report.json")
-        for asset in printable.iterdir():
+        for asset in printable.rglob("*"):
             if asset.is_file():
-                zipf.write(asset,"print-candidate/"+asset.name)
+                zipf.write(asset,"print-candidate/"+str(asset.relative_to(printable)))
         zipf.writestr("READ-BEFORE-PRINTING.txt",
            "This is a real multi-photo reconstruction, but it is NOT certified printer-ready.\n"
            "Check geometry, manifoldness, scale, thin features, UV textures, "
@@ -134,5 +134,7 @@ def run_reconstruction(folder, job_id, version_id, height_mm, quality, settings,
            "Without a scale marker the reconstruction's absolute size is unknown. "
            "Automatic sizing uses the longest axis as the intended height.\n")
     require(package,1024)
-    return {"preview_path":str(preview),"package_path":str(package),
-            "report_path":str(report),"photo_count":len(images)}
+    return {"preview_path":str(preview.relative_to(settings.data_dir)),
+            "package_path":str(package.relative_to(settings.data_dir)),
+            "report_path":str(report.relative_to(settings.data_dir)),
+            "photo_count":len(images)}
