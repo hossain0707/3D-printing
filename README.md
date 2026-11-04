@@ -1,332 +1,237 @@
 <div align="center">
 
 <a href="https://minimo-3d-printing.vercel.app/">
-  <img src="docs/assets/minimo-hero.svg" alt="Animated MINIMO Studio branding with a floating cartoon miniature" width="100%" />
+  <img src="docs/assets/realistic-hero.svg" width="100%" alt="Animated MINIMO REAL scientific facial reconstruction concept banner" />
 </a>
 
-# MINIMO Studio
-### AI-Assisted Photo-to-Chibi 3D Miniature Platform
+# MINIMO REAL
+### Multi-View Human 3D Reconstruction & Manufacturing Preparation
 
-**One photo. Your colors. Your little 3D world.**
+**Real photographs. Real reconstructed geometry. No generic cartoon avatars.**
 
-Design a personalized, cute cartoon miniature with on-device photo analysis, interactive 360° preview, customization, regeneration, approval, and a full-color manufacturing handoff.
+A professional, privacy-aware platform for generating textured, realistic 3D scans from multiple views of a person. Powered by Python, FastAPI, **COLMAP photogrammetry**, Blender automation, and a browser-based real-model viewer.
 
-<br/>
+[![Live customer website](https://img.shields.io/badge/LIVE_CUSTOMER_WEBSITE-155966?style=for-the-badge&logo=vercel&logoColor=white)](https://minimo-3d-printing.vercel.app/)
+[![Source](https://img.shields.io/badge/GITHUB_REPOSITORY-20333d?style=for-the-badge&logo=github&logoColor=white)](https://github.com/hossain0707/3D-printing)
 
-<a href="https://minimo-3d-printing.vercel.app/"><img alt="Live studio" src="https://img.shields.io/badge/OPEN_LIVE_STUDIO-F06B66?style=for-the-badge&logo=vercel&logoColor=white"></a>
-<a href="#-quick-start"><img alt="Quick start" src="https://img.shields.io/badge/QUICK_START-292520?style=for-the-badge&logo=github&logoColor=white"></a>
-<a href="#-system-architecture"><img alt="Architecture" src="https://img.shields.io/badge/ARCHITECTURE-C8ABD8?style=for-the-badge&logoColor=white"></a>
+![Python](https://img.shields.io/badge/Backend-FastAPI-148576?style=flat-square)
+![COLMAP](https://img.shields.io/badge/Reconstruction-COLMAP-326d91?style=flat-square)
+![Blender](https://img.shields.io/badge/Mesh_Export-Blender-e59e63?style=flat-square)
+![Customer Website](https://img.shields.io/badge/Frontend-Vercel-252d39?style=flat-square)
+![License](https://img.shields.io/badge/Original_Code-Proprietary-b6706e?style=flat-square)
 
-<br/>
-
-![Website](https://img.shields.io/badge/Website-Live-29966b?style=flat-square)
-![Preview](https://img.shields.io/badge/3D_Preview-Interactive-667fb1?style=flat-square)
-![Processing](https://img.shields.io/badge/Photo_Processing-Local--first-9a77ba?style=flat-square)
-![Hardware](https://img.shields.io/badge/Dedicated_GPU-Not_Required-347e9b?style=flat-square)
-![License](https://img.shields.io/badge/License-Proprietary-bd6965?style=flat-square)
-
-**[Live customer website](https://minimo-3d-printing.vercel.app/)** · **[Architecture](docs/ARCHITECTURE.md)** · **[Printing QA](docs/PRINTING-QA.md)** · **[Go-live requirements](docs/GO-LIVE.md)**
+**[Customer capture](https://minimo-3d-printing.vercel.app/#capture)** · **[Architecture](docs/ARCHITECTURE.md)** · **[Deployment](docs/PYTHON-BACKEND.md)** · **[Capture quality](docs/PHOTO-CAPTURE.md)** · **[Print QA](docs/PRINTING-QA.md)**
 
 </div>
 
 ---
 
 > [!IMPORTANT]
-> **Current maturity: publicly deployed interactive design studio, not a paid production store.** The model generator, editor, 3D preview, regeneration, session-level approval, and production-*candidate* export are implemented. Paid checkout, durable orders, customer/admin authentication, supplier-approved printer files and physical print validation **are not yet completed**. Please do not advertise this release as an automated photo-perfect 3D reconstruction service.
+> **Deployment and validation status:** The new realistic customer interface is deployed on Vercel, and Python API/job logic is covered by automated tests. **The GPU/COLMAP + Blender processing worker is not yet connected to a public service, and a full reconstruction with representative real-person photographs has not yet been validated.** Until an HTTPS Python processing service is provisioned, the website explicitly disables upload and never fabricates a 3D preview. There is **no live payment, printer fulfillment, or guaranteed photo-identical reconstruction**.
 
-## Project vision
+## Project objective
 
-MINIMO Studio aims to make personalized **full-color chibi figurines** accessible through a delightful web experience—without asking customers to learn 3D modeling, buy equipment or install a mobile app.
+Produce an actual **photograph-derived 3D mesh and texture** of a real person for inspection, correction, and potential full-color printing. Unlike the earlier chibi prototype, the active application does not make a character from predefined spheres or faces.
 
-The intended journey is simple: **upload one photo → create a cute 3D version → inspect/adjust/regenerate → approve → order a professionally verified physical print**.
+- Customers provide **12–40 overlapping, consistent photographs** of one stationary person.
+- The reconstruction pipeline estimates real camera geometry and dense surface detail.
+- Multi-view image textures preserve information visible in the submitted photographs.
+- The customer inspects a genuine GLB generated from the scan before approving it.
+- The operator inspects the textured OBJ, physical scale, manifold boundaries, textures and vendor material rules before printing.
 
-Our current release demonstrates the design and export stages. The secure order-processing and manufacturing pipeline is the next commercial milestone.
+**This is a multi-photo photogrammetry system, not a magic single-image identity AI.** Face, hair and fine fabric are intrinsically difficult to reconstruct, especially if the person moves. A synchronized multi-camera capture may be needed for premium accuracy.
 
-### What makes the approach practical?
-
-| Pillar | Product decision | Benefit |
-|:--|:--|:--|
-| **One-photo entry** | Customer starts with a JPG, PNG or WebP photo | Fast onboarding |
-| **CPU-friendly creation** | Browser-based parametric geometry + optional MediaPipe CPU landmarks | No dedicated GPU requirement for the starter workflow |
-| **Color personalization** | Photo-region colors, plus editable skin/hair/clothing swatches | Keeps visible outfit and appearance colors recognizable |
-| **Design control** | Hairstyles, poses, styles, sizes, regeneration | Customer can review before approving |
-| **Actual 3D** | Rotatable, zoomable Three.js mesh | More informative than a static AI picture |
-| **Production handoff** | GLB + OBJ/MTL/PNG + manifest | A concrete input for operator and supplier checks |
-
-## Animated customer-to-print journey
+## Animated acquisition workflow
 
 <div align="center">
-
-<img src="docs/assets/customer-workflow.svg" alt="Animated customer journey from photo upload through customization and printability review" width="100%" />
-
-**UPLOAD → CUSTOMIZE → APPROVE → REVIEW**
-
+<img src="docs/assets/realistic-pipeline.svg" width="100%" alt="Animated capture, reconstruct, texture and quality-review process" />
 </div>
 
-| Stage | Customer interaction | System responsibility |
-|:--:|:--|:--|
-| **01** | Upload one clear photograph | Validate image locally; sample skin, hair and clothing colors |
-| **02** | Select chibi style; edit hairstyle, pose and colors | Optional AI landmarks + procedural 3D character generation |
-| **03** | Rotate, zoom, regenerate or approve | Display and version the exact previewed model; invalidate approval after an edit |
-| **04** | Export the approved design | Package a full-color printing **candidate** for manual mesh/color QA and supplier proofing |
-
-**Try it now:** [Live 3D customization studio](https://minimo-3d-printing.vercel.app/#studio)
-
-## Features & implementation status
-
-| Module | Implemented capability | Status |
-|:--|:--|:--:|
-| Landing experience | Professional responsive homepage, sections and animated character | ✅ |
-| Photograph intake | Click/drag-and-drop JPG, PNG, WebP, maximum 8 MB | ✅ |
-| Face analysis | Optional on-device MediaPipe CPU face landmarks, with graceful fallback | ✅ |
-| Color sampling | Approximate skin, hair, shirt and trousers colors from visible regions | ✅ |
-| 3D character engine | Procedural chibi head/body, expressions, hair, shoes, outfits | ✅ |
-| Style presets | Classic, Dreamy and Collector | ✅ |
-| Customer editor | Hairstyle, pose, four color swatches, 5/8/10 cm sizes, inscription field | ✅ |
-| Live preview | Real Three.js 3D, rotate and zoom | ✅ |
-| Regeneration | Change procedural variation, preserve selected colors, bump version | ✅ |
-| Approval state | Lock selected configuration for export during current browser session | ✅ |
-| Export | GLB preview, OBJ/MTL/PNG textures, JSON order manifest in ZIP | ⚠️ Print candidate |
-| Price presentation | Example target retail price in KRW | ℹ️ Indicative |
-| Persistent customer orders | Database-backed history, accounts, order status | ❌ Pending |
-| Secure admin dashboard | Operator review queue, roles, audit and notifications | ❌ Pending |
-| Online payment | Payment gateway, server-verified checkout, webhooks | ❌ Pending |
-| Printer-validated manufacture | Watertight final mesh, supplier color proof, first physical sample | ❌ Pending |
+| Phase | Actual operation | Acceptance condition |
+|:--|:--|:--|
+| **Capture** | 12–40 real overlapping photos, upload consent and validation | Distinct decodable images with sufficient coverage |
+| **Geometry** | COLMAP feature matching, camera mapping, dense PatchMatch, depth fusion, Poisson surface | Nonempty real mesh and a successful GPU pipeline |
+| **Texture** | COLMAP projects photographed colors into a texture atlas | Actual OBJ, MTL and image textures exist |
+| **Handoff** | Blender imports real mesh, normalizes scale and creates GLB/OBJ + QA JSON | Customer reviews real preview; operator checks manufacturing |
 
 > [!NOTE]
-> The current 3D engine is **template/procedural-based**. The optional AI component performs facial landmark analysis; the color picker performs pixel sampling. This is **not** an end-to-end diffusion model that recreates an exact person from one photograph. Hidden surfaces, face likeness, garments and patterns require estimation and human review.
+> A texture atlas derived from the photographs is **not** a promise of photographic accuracy on the final physical object. Skin, hair, reflective material and partially unseen parts are difficult even for advanced photogrammetry.
+
+## Current implementation
+
+| Area | Implemented | Verified |
+|:--|:--:|:--|
+| Responsive realistic-capture website | Yes | Frontend source/CI |
+| Secure 12–40 photo submission and validation | Yes | Python API tests |
+| Explicit likeness consent | Yes | Python API tests |
+| Owner-scoped private project token | Yes | Python API tests |
+| Project retention and deletion | Yes | Python API tests |
+| Durable queued jobs, worker stage reporting | Yes | Python API tests |
+| Real COLMAP SfM/MVS/texture command pipeline | Yes | Command integration coded; **GPU sample run not verified** |
+| Blender GLB + scaled textured OBJ export | Yes | Script implemented; **real scan/print not verified** |
+| Web-based real GLB viewer | Yes | Static integration; **real server preview not verified** |
+| Customer approval, private ZIP/report download | Yes | Python API contract tests |
+| Restricted operator queue and production status | Yes | Python API contract tests |
+| Actual payment and shipping | No | Not connected |
+| Printer-certified model / physical first article | No | Requires supplier testing |
+| Public GPU worker deployment | No | Dedicated GPU and HTTPS service required |
+
+**No unfinished module returns fabricated success:** if the binaries are missing, photos do not match, geometry fails or files are incomplete, the job fails and the UI reports the failure.
 
 ## System architecture
 
 ~~~mermaid
-flowchart TB
-    Photo["Customer photograph"] --> Upload["Browser file validation"]
-    Upload --> Colors["Canvas color estimation"]
-    Upload --> Landmarks["Optional CPU face landmarks"]
-    Colors --> Parameters["Editable character parameters"]
-    Landmarks --> Parameters
-    Manual["Style / hair / pose / size controls"] --> Parameters
-    Parameters --> Engine["Procedural 3D chibi engine"]
-    Engine --> Viewer["Three.js animated 360° preview"]
-    Viewer --> Review{"Customer approves?"}
-    Review -->|"Regenerate or edit"| Parameters
-    Review -->|"Yes"| Snapshot["Session-level design snapshot"]
-    Snapshot --> Exports["GLB + OBJ / MTL / PNG + manifest ZIP"]
-    Exports --> Operator["Human mesh & color validation"]
-    Operator --> Supplier["Full-color print supplier proof"]
-    Supplier --> Product["Approved physical miniature"]
-    style Photo fill:#ffe4d5,stroke:#d69c87,color:#312a27
-    style Engine fill:#f8d2c8,stroke:#d78779,color:#312a27
-    style Viewer fill:#e5daf0,stroke:#b6a0cc,color:#312a27
-    style Exports fill:#e4eefa,stroke:#9ab4d0,color:#312a27
-    style Product fill:#e0f2e7,stroke:#8bbda0,color:#24503b
+flowchart LR
+  A["Customer on Vercel"] --> B["12–40 photos + consent"]
+  B --> C["Private FastAPI API"]
+  C --> D["Authenticated project + SQLite"]
+  C --> E["Restricted photo storage"]
+  D --> F["Python durable worker"]
+  E --> F
+  F --> G["COLMAP CPU SfM"]
+  G --> H["COLMAP GPU dense MVS"]
+  H --> I["Poisson geometry + photo texture"]
+  I --> J["Blender GLB / textured OBJ"]
+  J --> K["Version + QA JSON + private ZIP"]
+  K --> L["Customer 3D preview & approval"]
+  K --> M["Operator geometry / material review"]
+  M --> N["External printer, only after approval"]
+  style C fill:#dff2e8,color:#15342d,stroke:#79b79e
+  style H fill:#e2edfa,color:#203955,stroke:#9fb6d1
+  style K fill:#fff0dc,color:#59432b,stroke:#e3b77b
 ~~~
 
-### Technology stack
+**Operational separation:** Vercel serves the customer UI. The long-running GPU worker and private files **must run on a persistent host or dedicated processing service**, not inside Vercel's short-lived web functions.
 
-| Layer | Technologies | Function |
-|:--|:--|:--|
-| Website | HTML5, CSS3, ES modules | Lightweight responsive site |
-| 3D engine | Three.js r170, OrbitControls | Procedural meshes and live 3D |
-| Vision | MediaPipe FaceLandmarker, CPU/WASM (optional) | Basic face proportion estimates |
-| Color analysis | Browser Canvas | Approximate color sampling |
-| Packaging | GLTFExporter, OBJ/MTL, PNG, JSZip | Preview and print-candidate ZIP |
-| Deployment | Vercel static hosting | Production HTTPS site |
-| Python backend | FastAPI, Python worker, SQLite, trimesh | Implemented as a separate local/self-hosted service; not yet hosted |
-| Future commerce | Hosted payments, verified accounts, order database, shipping | Not yet active |
-
-Explore the complete [architecture documentation](docs/ARCHITECTURE.md), including trust boundaries and a proposed commerce service.
-
-## Repository structure
+## Repository layout
 
 ~~~text
 3D-printing/
-├── index.html                     # Customer-facing experience
-├── styles.css                     # Responsive design system and animation
-├── app.js                         # Photo analysis, 3D generator, viewer, exporter
-├── package.json                   # Test scripts
-├── vercel.json                    # Static deployment and security headers
-├── tests/
-│   └── smoke.test.js              # Source-structure smoke tests
+├── index.html                       Customer multi-photo capture and 3D review
+├── styles.css                       Responsive design and animations
+├── app.js                           Real authenticated upload, job monitor and GLB viewer
+├── admin.html / admin.js            Private operator queue interface
+├── api-config.js                    Public API ORIGIN only; no secrets
+├── services/python/
+│   ├── minimo/
+│   │   ├── app.py                   FastAPI service / privacy / project authorization
+│   │   ├── db.py                    Transactional single-host SQLite schema
+│   │   ├── settings.py              Fail-closed security configuration
+│   │   ├── photogrammetry.py         Real COLMAP stages, Blender handoff, ZIP validation
+│   │   └── worker.py                Durable processing jobs and retention cleanup
+│   ├── tests/test_api.py            API tests with synthetic test images
+│   ├── requirements.txt
+│   └── Dockerfile                   API container (worker requires GPU provision)
+├── tools/blender/
+│   └── prepare_realistic.py         Real textured mesh import, sizing, QA and export
 ├── docs/
-│   ├── ARCHITECTURE.md            # Engineering architecture and future services
-│   ├── PRINTING-QA.md             # Manufacturing quality checklist
-│   ├── GO-LIVE.md                 # Commercial release gates
-│   └── assets/
-│       ├── minimo-hero.svg       # Animated project header
-│       └── customer-workflow.svg # Animated customer workflow
-├── LICENSE                        # Proprietary license
-└── README.md
+│   ├── PYTHON-BACKEND.md            Running and deploying processing services
+│   ├── PHOTO-CAPTURE.md             Multi-angle customer photography protocol
+│   ├── ARCHITECTURE.md              Architecture and security boundaries
+│   ├── PRINTING-QA.md               Manufacturing inspection
+│   ├── GO-LIVE.md                   Exact launch gates and outstanding integration
+│   └── assets/                      Animated technical README illustrations
+├── compose.yaml                     Local API with private persistent storage
+├── .github/workflows/ci.yml         Automated frontend and Python tests
+└── LICENSE                          Proprietary original project rights
 ~~~
 
 ## Quick start
 
-### Requirements
+**Requirements:** Python 3.12, Node.js 22 (smoke tests), a modern WebGL browser, and for actual reconstruction a compatible **CUDA-enabled COLMAP installation and Blender 4.4+**.
 
-A modern WebGL-enabled browser, Python 3 or equivalent HTTP server, and internet access for the current CDN-hosted JavaScript and optional AI model. An integrated GPU supporting WebGL is enough for the preview; a **dedicated** GPU is not required.
+### Launch the API locally
 
 ~~~bash
 git clone https://github.com/hossain0707/3D-printing.git
 cd 3D-printing
+python -m venv .venv
+source .venv/bin/activate
+pip install -r services/python/requirements-dev.txt
+cp .env.example .env
+~~~
 
-# Serve ES modules over HTTP (do not open index.html via file://)
+Create distinct cryptographically random secrets and configure your environment before starting. The API refuses public intake by default.
+
+~~~bash
+# Example Linux/macOS shell after exporting the configured environment:
+export PYTHONPATH=services/python
+uvicorn minimo.app:app --host 127.0.0.1 --port 8001
+# In a second terminal, with COLMAP GPU and Blender installed:
+python -m minimo.worker
+# For the static website:
 python -m http.server 8000
 ~~~
 
-Open **http://localhost:8000/**.
+Alternatively use **\`docker compose up --build -d\` for the local API**. A separate GPU worker must still be installed on a machine that can access the same private persistent data volume; the API-only container does **not** include CUDA COLMAP or Blender.
 
-### Run automated smoke checks
+Read **[Python backend deployment and security](docs/PYTHON-BACKEND.md)** for the exact startup, HTTPS, retention, GPU, and service requirements.
+
+### Test
 
 ~~~bash
 npm test
-# Alternative: node --test tests/smoke.test.js
+node --check app.js
+python -m pytest services/python/tests -q
 ~~~
 
-The smoke test verifies essential files and source hooks, not full browser functionality, printable mesh integrity or live customer payments.
+Tests validate input security and API contracts with **mocked external reconstruction**. They cannot verify actual likeness, CUDA throughput, supplier acceptance, or physical output. The CI badge should not be interpreted as certification.
 
-### Deploy to Vercel
+### Connect the public customer website
 
-1. Import the repository into Vercel with GitHub access enabled.
-2. Use **Other / Static**, set the root directory to the repository root, and leave the build command empty.
-3. Deploy the main branch and verify 3D preview and export.
-4. For your own production use, connect Vercel Git integration so future GitHub commits trigger updates.
+After deploying a real Python API behind HTTPS, set **only the public HTTPS origin** in [api-config.js](api-config.js), update backend \`MINIMO_ALLOWED_ORIGINS\`, and deploy the static files to Vercel. Until then, the frontend remains a **truthful read-only demonstration of the capture experience**.
 
-**Current public deployment:** **https://minimo-3d-printing.vercel.app/**. This deployment is online, but automatic GitHub-to-Vercel synchronization has **not yet been configured** for this repo.
+**Live website:** https://minimo-3d-printing.vercel.app/
 
+**Private operator console:** https://minimo-3d-printing.vercel.app/admin.html — operates only when the Python API is available and an authenticated operator enters their private key.
 
-## Python processing and operator workflow
+## Reconstruction and print safety
 
-The repository now includes a **real Python service**, a private persistence layer, an independent CPU worker, and an operator review interface. It is **not yet deployed to a public server**; the existing Vercel website remains a local-browser demo until you configure an HTTPS API URL.
+The produced ZIP contains the **actual reconstructed scene**, photographic textures, an operator QA report, and manufacturing candidate. No customer photos are included in the distributed ZIP.
 
-| Python subsystem | Implementation |
-|:--|:--|
-| HTTP API | FastAPI with strictly validated requests |
-| Private photo intake | MIME and image decoding checks, 8 MB limit, EXIF-stripped JPEG storage |
-| Owner access | Per-project random tokens, server-side HMAC token hashes |
-| Persistent job records | SQLite WAL on a dedicated persistent disk; single-host design |
-| Generation queue | Separate resumable CPU worker process |
-| Chibi geometry | Python + NumPy + trimesh (not pretrained photo-to-3D reconstruction) |
-| Export | GLB + metric OBJ/MTL/flat-color PNGs + manifest ZIP |
-| Server approval | Owner-token-protected selected version |
-| Operator management | Admin-key-protected queue, version download and status transitions |
-| Privacy | Project deletion endpoint, per-project access, private artifact storage |
-| Manufacturing QA | Blender diagnostics CLI; manual geometry repair and material proof still required |
+- The model has **unverified absolute physical scale** unless a calibrated reference is captured. The current automated sizing maps the longest reconstructed dimension to the chosen target height; an operator must correct orientation and confirm measurements.
+- A reconstructed mesh may contain thin shells, holes, intersections or disconnected pieces.
+- Hair and soft fabrics may require manual modeling or re-capture.
+- Color fidelity depends on the printer, process, material, ICC workflow, finishing and lighting.
+- The system **does not accept paid orders**, submit models to print vendors, or certify print quality.
 
-### Running the Python service
+Read [the printing quality checklist](docs/PRINTING-QA.md).
 
-**Recommended:** use Docker Compose with a persistent named volume:
+## Privacy and security
 
-~~~bash
-cp .env.example .env
-# Configure both secrets in .env using 32+ random characters.
-# Keep public generation disabled until you secure the deployment and consent flow.
-docker compose up --build -d
-docker compose logs -f worker
-~~~
+Human photographs can be sensitive personal data. The current API requires affirmative consent and stores images in a private server directory, not on Vercel or GitHub. Project access requires a random owner token, the database stores a keyed digest rather than the raw token, and data is retained for a configurable duration (default **30 days**). The customer can request deletion, and the worker purges expired completed projects.
 
-The service binds to **127.0.0.1:8001** on the host; place it behind an HTTPS reverse proxy when publishing it. Do not run this disk-backed job queue inside ephemeral Vercel Functions.
+Before activating uploads for the public internet, deploy TLS, access control, malware filtering, edge rate limits, server backups, monitoring, legally reviewed privacy/retention notices, breach response and a protected operator authentication system. **Do not put customer photos, project tokens or admin keys into GitHub or public JavaScript.**
 
-**Detailed setup:** [Python Backend Operations](docs/PYTHON-BACKEND.md).
+## Release roadmap and real launch gates
 
-### Connecting the live website
-
-The frontend reads \`window.MINIMO_API_URL\` from [\`api-config.js\`](api-config.js). This defaults to an empty string, so the hosted website continues to use the browser-only demonstration until the backend exists.
-
-Once you have a **real HTTPS API hostname**, set that public API **origin only** in \`api-config.js\`, configure the backend CORS allowlist for the customer website, and redeploy the static website. Never expose operator credentials or server secrets there.
-
-With Python connected, the customer can select **Generate with Python**, inspect the server-generated GLB preview, approve that version via the API, and download the server-generated manufacturing ZIP. The worker must be running.
-
-**Operator console:** [\`/admin.html\`](https://minimo-3d-printing.vercel.app/admin.html), available as a static interface but nonfunctional without a Python API URL and a private operator key. It does not process payments.
-
-> [!WARNING]
-> The Python worker is **CPU-first and template-based**. A local Python backend does not magically infer hidden anatomy, detailed clothing texture or exact customer likeness. The exported model is a **print candidate**, not a factory-approved product. Validation, payment, secure order checkout, backup/retention policies, real full-color samples and fulfillment remain launch gates.
-
-
-## Manufacturing handoff
-
-A customer-approved browser design can be exported as:
-
-~~~text
-minimo-approved-v{version}-{size}mm.zip
-├── ORDER-MANIFEST.json
-├── READ-BEFORE-PRINTING.txt
-├── preview/
-│   └── approved-character.glb
-└── print-candidate/
-    ├── miniature.obj
-    ├── miniature.mtl
-    └── color_<hex>.png  # One or more generated texture maps
-~~~
-
-| Asset | Purpose |
-|:--|:--|
-| GLB | Reviewable digital character |
-| OBJ | Mesh candidate scaled to target height in millimeters |
-| MTL / PNG | Flat-color material texture assignments |
-| Manifest | Chosen parameters, approved version, identifier and status |
-| Print instructions | Manual repair, supplier validation and color-proof requirements |
-
-> [!CAUTION]
-> **Do not treat the generated ZIP as a certified printable object.** Some meshes overlap and may require Boolean union/voxel remeshing, manifold inspection, support/thickness fixes and UV rework. Solid-color textures do not reproduce exact clothing prints or photo-realistic skin, and actual color depends on the printer's process and material. An external printing supplier must accept the corrected file before customer fulfillment.
-
-**Operator reference:** [Full-Color Printing Quality Assurance](docs/PRINTING-QA.md).
-
-## Privacy, reliability & trust
-
-- Photos are processed **in the browser** and are not uploaded to a dedicated MINIMO server in the current release.
-- Third-party CDN libraries and optional landmark-model files are downloaded to run locally; audit and self-host them for commercial use.
-- Current approval history is **session-only**, not a persistent authenticated order.
-- Never store customer photos or addresses in the public GitHub repository.
-- Before commercial launch: implement authentication, role separation, private object storage, rate limits, consent/retention rules, server-side pricing, verified payment events, audit logs and operational monitoring.
-- Confirm customer permission to use likenesses, logos, copyrighted outfits or other protected assets.
-
-## Version roadmap
-
-~~~mermaid
-flowchart LR
-    V1["V1 • Interactive studio<br/>Deployed"] --> V2["V2 • Export<br/>Candidate implemented"]
-    V2 --> V3["V3 • Orders / payment / admin<br/>Not connected"]
-    V3 --> V4["V4 • High-fidelity AI / auto QA<br/>Research"]
-    style V1 fill:#ddf4e5,stroke:#8dbfa0,color:#2d5236
-    style V2 fill:#fff1d9,stroke:#d6ae60,color:#675029
-    style V3 fill:#f8e3e4,stroke:#d5969b,color:#682e36
-    style V4 fill:#e7e9f8,stroke:#a4b1d7,color:#303d6e
-~~~
-
-| Phase | Delivered / required outcome | Status |
+| Release | Description | Status |
 |:--|:--|:--|
-| **V1 — Experience** | Online UI, live 3D customization, regeneration and design approval | ✅ Deployed |
-| **V2 — Export** | Colored candidate bundle; mesh repair and real full-color sample still required | 🟡 Partial |
-| **V3 — Commerce** | Authenticated customers/operators, paid checkout, durable orders, status and shipping | ⏳ Planned |
-| **V4 — Fidelity** | Better segmentation, texture synthesis, validated likeness and automated print QA | 🔬 Research |
+| **R1** | Realistic capture UI + new FastAPI multi-image API | Implemented; tests added |
+| **R2** | Real COLMAP + Blender pipeline | Implemented; GPU real-photo integration still unverified |
+| **R3** | Hosted private GPU processor and customer preview | External hosting/integration required |
+| **R4** | Measured likeness, repair workflow, supplier first articles | Physical validation required |
+| **R5** | Protected commerce, payment verification and shipping | Not implemented |
 
-### Before the first paid customer order
+**Do not sell a “photo-identical figure” until a representative pilot demonstrates it.** Validate multiple people and capture conditions with explicit user consent, inspect actual face likeness and ship at least one proofed full-color print.
 
-1. Validate photo color/shape accuracy with varied real client images.
-2. Confirm that ZIP export completes and imports with correct scale and textures in Blender.
-3. Repair meshes to match the selected full-color printer's requirements.
-4. Produce and inspect physical test prints before advertising delivery quality.
-5. Integrate secured orders, payments, administration, customer privacy and fulfillment.
-6. Complete applicable business, consumer-protection and immigration/work-authorization checks.
+## Technical sources and licensing
 
-See [the full commercial launch checklist](docs/GO-LIVE.md).
+- [COLMAP command-line and photogrammetry reference](https://colmap.github.io/cli.html)
+- [COLMAP source/license](https://github.com/colmap/colmap) — BSD-style open-source license.
+- [Blender Python API](https://docs.blender.org/api/current/) — external processing tool with its own license.
+- [Three.js](https://threejs.org/) — web visualization library.
 
-## License & ownership
-
-**© 2026 Md Najmul Hossain — All rights reserved.**
-
-This repository's original code, design, documentation, brand artwork and modeling workflow are proprietary. Commercial use, redistributing or deriving from these original assets requires permission. See [LICENSE](LICENSE). Third-party libraries and customer-owned materials remain under their respective rights.
-
-**Maintainer:** [Md Najmul Hossain · @hossain0707](https://github.com/hossain0707)
-
----
+Original MINIMO code, visual design, documentation and custom scripts remain **proprietary to Md Najmul Hossain**; third-party packages and toolchains retain their respective licenses. See [LICENSE](LICENSE).
 
 <div align="center">
 
-### Small figure. Big personality.
+---
 
-**[Launch the live studio](https://minimo-3d-printing.vercel.app/)** · **[Inspect the architecture](docs/ARCHITECTURE.md)** · **[Review manufacturing readiness](docs/PRINTING-QA.md)**
+**MINIMO REAL — your likeness deserves real geometry.**
 
-<sub>The animated README illustrations are concept artwork, not photographs of manufactured samples.</sub>
+[Open customer site](https://minimo-3d-printing.vercel.app/) · [Review capture requirements](docs/PHOTO-CAPTURE.md) · [Inspect source](https://github.com/hossain0707/3D-printing)
+
+<sub>Technical SVG artwork illustrates the reconstruction process and is not presented as a customer scan.</sub>
 
 </div>

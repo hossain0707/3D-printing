@@ -1,4 +1,4 @@
-// Public configuration only. Never put credentials, project tokens or admin keys here.
-// Leave blank for the current Vercel local-design demo.
-// After deploying the Python service behind HTTPS, set its publicly accessible API origin.
+// Public API origin only. Never embed secrets or per-customer access tokens.
+// Empty until a private GPU-enabled Python service has actually been deployed.
+// The capture page deliberately refuses to simulate a reconstructed 3D model.
 window.MINIMO_API_URL = "";

@@ -1,122 +1,177 @@
-# MINIMO Studio — Python Service Operations
+# Deploying the MINIMO REAL Python Processing Service
 
-## Actual architecture
+**Status:** Python API and reconstruction code exist in GitHub; the CPU/GPU
+binary stack and a public HTTPS processing server have not been provisioned in
+this repository. The Vercel frontend correctly disables upload while the API
+is disconnected. There are no fake success responses.
 
-**Vercel:** static customer-facing website and WebGL viewer.  
-**Python FastAPI API:** private photo intake, server-authoritative projects, token-protected version approval, manufacturing candidate retrieval and operator review endpoints.  
-**Python CPU worker:** durable SQLite job queue, photo-color extraction, trimesh chibi geometry and full-color OBJ/MTL/PNG/GLB candidate packaging.
+## Prerequisites
 
-No GPU is required for this generator. The output is *procedural chibi geometry* guided by sampled colors, **not high-fidelity photo-to-3D generative reconstruction**. Detailed clothing textures, photorealistic likeness, mesh union and certified printing remain separate R&D/manufacturing tasks.
+- Python 3.12
+- A persistent Linux host, preferably Ubuntu 24.04
+- COLMAP CLI **with CUDA dense multi-view stereo support**
+- A compatible NVIDIA GPU and driver for COLMAP PatchMatch (GPU memory needs
+  depend on photo count and image size; start with 16–24 GB VRAM)
+- Blender **4.4 or later** and its Python OBJ/glTF operators
+- 16–32 GB system RAM as a practical initial target, plus several GB of disk
+  capacity for each reconstruction
+- HTTPS reverse proxy, host firewall and restricted storage/backup policy
 
-### Data flow
+The pipeline is real COLMAP geometry reconstruction; it does **not** call a
+proprietary paid photo-to-avatar service.
 
-~~~mermaid
-flowchart LR
-    UI[Customer on Vercel] -->|HTTPS / API| API[FastAPI]
-    API --> DB[(SQLite single-host)]
-    API --> PRIVATE[Private photo storage]
-    DB --> WORK[CPU Python Worker]
-    PRIVATE --> WORK
-    WORK --> ASSET[GLB / OBJ / MTL / PNG ZIP]
-    WORK --> DB
-    API --> UI
-    API --> OPS[Operator review endpoint]
-    OPS --> PRINTER[Physical print after QA]
-~~~
+**Official installation documentation:**
+- COLMAP: https://colmap.github.io/install.html
+- COLMAP CLI: https://colmap.github.io/cli.html
+- Blender: https://www.blender.org/download/
 
-## Local developer setup
-
-1. Install Python 3.12 and Node 22 (for frontend smoke checks).
-2. Install API requirements:
+## Local installation
 
 ~~~bash
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\\Scripts\\activate
+git clone https://github.com/hossain0707/3D-printing.git
+cd 3D-printing
+python3.12 -m venv .venv
+source .venv/bin/activate
 pip install -r services/python/requirements-dev.txt
 cp .env.example .env
 ~~~
 
-3. Use a password manager or generator to set a **different random 32+ character value** for `MINIMO_TOKEN_PEPPER` and `MINIMO_ADMIN_KEY` in `.env`.
-4. For local testing only, set `MINIMO_PUBLIC_GENERATION=true` and ensure `MINIMO_ALLOWED_ORIGINS` includes `http://localhost:8000`.
-5. Start the API and worker in separate terminals (load the environment variables from `.env`; Uvicorn supports `--env-file`):
+Generate **two distinct strong secrets** locally without copying them into chat:
 
 ~~~bash
-PYTHONPATH=services/python uvicorn minimo.app:app --host 127.0.0.1 --port 8001 --env-file .env
-# Terminal 2, with the same variables exported into its environment:
-PYTHONPATH=services/python python -m minimo.worker
-# Terminal 3:
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+~~~
+
+Set \`MINIMO_TOKEN_PEPPER\` and \`MINIMO_ADMIN_KEY\` separately in \`.env\`.
+Keep \`MINIMO_ENABLE_UPLOADS=false\` until the host and HTTPS protection are ready.
+
+For the developer test machine only, use \`MINIMO_ENV=development\`. In
+production, set \`MINIMO_ENV=production\` to make missing/short secrets a
+hard startup failure.
+
+### Native Python service and worker
+
+In the root of the cloned repository (Linux/macOS shell):
+
+~~~bash
+set -a
+source .env
+set +a
+export PYTHONPATH="$PWD/services/python"
+uvicorn minimo.app:app --host 127.0.0.1 --port 8001
+~~~
+
+Start the worker in **another terminal**, with the *same environment and data directory*:
+
+~~~bash
+set -a
+source .env
+set +a
+export PYTHONPATH="$PWD/services/python"
+command -v colmap
+command -v blender
+python -m minimo.worker
+~~~
+
+If either binary is missing, the worker **exits rather than pretending**
+reconstruction is working. A COLMAP build without CUDA dense stereo may start
+but then fail at the real multi-view stage; verify with the actual pilot scan.
+
+### Frontend local preview
+
+~~~bash
 python -m http.server 8000
 ~~~
 
-For a cross-platform way to load environment variables and launch both services, use Docker Compose below.
+Open http://localhost:8000. For local Python integration, set
+\`window.MINIMO_API_URL\` to \`http://127.0.0.1:8001\` in \`api-config.js\`
+and reload the page. In production configure only the real public HTTPS origin.
 
-6. Configure `api-config.js` in a **local test checkout** to set `window.MINIMO_API_URL = "http://127.0.0.1:8001"`, reload the frontend, and use the **Generate with Python** button.
-7. The resulting order artifacts stay on the Python service disk—not in Vercel.
+The customer frontend needs a live API: its 3D viewer will **not** fabricate
+a stand-in face or model.
 
-### Docker Compose
+## Docker Compose: API only
 
 ~~~bash
-cp .env.example .env
-# Edit .env, assign safe secrets, set MINIMO_PUBLIC_GENERATION=true ONLY for a protected pilot.
 docker compose up --build -d
-docker compose logs -f worker
 ~~~
 
-The API listens on host loopback (`127.0.0.1:8001`). The private data volume is shared with a *single worker*. In production, deploy behind a properly configured HTTPS reverse proxy and enable backup, monitoring, edge rate limits and durable logging.
+This launches a non-root API on loopback with a private persistent volume.
+It **does not** include GPU-enabled COLMAP or Blender and therefore does not
+start the reconstruction worker. Run both API and worker natively with a shared
+\`MINIMO_DATA_DIR\`, or build a custom GPU worker image with access to the
+*same* persistent files and a supported CUDA COLMAP installation.
 
-**Do not deploy this SQLite volume or background worker on Vercel serverless functions.** For multi-host scaling, migrate to PostgreSQL and a proper task broker.
+Do not point the worker to a different empty data directory or attempt to run
+a CPU-only COLMAP dense pipeline. The API, SQLite file, images and outputs
+must reside on a compatible shared private persistent volume.
 
-### Production environment
+**Vercel cannot replace the long-running GPU worker.** It hosts only the static
+customer-facing site and the operator console.
 
-- `MINIMO_ENV=production` causes startup to **fail closed** unless both secrets contain at least 32 characters.
-- `MINIMO_PUBLIC_GENERATION=false` is the default until you explicitly enable public uploads.
-- Set `MINIMO_ALLOWED_ORIGINS` to the exact HTTPS customer website domain.
-- Set the frontend's `MINIMO_API_URL` to the real HTTPS Python API hostname, then redeploy the static site.
-- Do not expose API keys in frontend JavaScript. Operator keys must be provided only through the admin interface in memory.
-- Enable HTTPS/WAF, full disk encryption, image retention/deletion, signed offsite backups, dependency audits and a queue maintenance plan before paid customer traffic.
+## HTTPS deployment
 
-## API endpoints (current)
+1. Deploy the Python service on a persistent host with GPU worker access.
+2. Terminate HTTPS at a trusted reverse proxy or load balancer.
+3. Bind the FastAPI origin to localhost or a private network only.
+4. Limit request body size to the configured maximum (~240 MB), add real IP
+   identification only from trusted proxies, edge rate limiting and observability.
+5. Set \`MINIMO_ALLOWED_ORIGINS\` to the **exact customer website HTTPS origin**.
+6. Set \`MINIMO_ENABLE_UPLOADS=true\` **only after** consent/privacy policy,
+   retention and secure data access are in place.
+7. Update the public \`api-config.js\` with the processing HTTPS origin (never
+   a secret), then redeploy the static Vercel site.
+8. Confirm GET \`/api/v2/health\` reports installed COLMAP and Blender binaries.
+9. Upload a real, consented 12–40 photo set; confirm a 3D preview, actual
+   photo-derived textures and valid private download.
 
-| Method | Route | Access |
-|---|---|---|
-| GET | `/api/v1/health` | Public, safe capability flags |
-| POST | `/api/v1/projects` | Public if enabled; throttled multipart photo |
-| POST | `/api/v1/projects/{id}/generate` | `X-Project-Token` |
-| GET | `/api/v1/projects/{id}/jobs/{job_id}` | `X-Project-Token` |
-| GET | `/api/v1/projects/{id}/versions/{vid}/preview` | `X-Project-Token` |
-| POST | `/api/v1/projects/{id}/versions/{vid}/approve` | `X-Project-Token` |
-| GET | `/api/v1/projects/{id}/versions/{vid}/package` | `X-Project-Token`; must approve |
-| GET | `/api/v1/admin/queue` | `X-Admin-Key` |
-| PATCH | `/api/v1/admin/versions/{vid}/production` | `X-Admin-Key` |
+## API v2 routes
 
-Generate request example:
+| Method | Endpoint | Access |
+|:--|:--|:--|
+| GET | \`/api/v2/health\` | Public capability data |
+| POST | \`/api/v2/projects\` | Consent + 12–40 multipart image files |
+| POST | \`/api/v2/projects/{id}/reconstruct\` | X-Project-Token |
+| GET | \`/api/v2/projects/{id}\` | X-Project-Token |
+| GET | \`/api/v2/projects/{id}/jobs/{job}\` | X-Project-Token |
+| GET | \`/api/v2/projects/{id}/versions/{version}/preview\` | X-Project-Token |
+| GET | \`/api/v2/projects/{id}/versions/{version}/report\` | X-Project-Token |
+| POST | \`/api/v2/projects/{id}/versions/{version}/approve\` | X-Project-Token |
+| GET | \`/api/v2/projects/{id}/versions/{version}/package\` | X-Project-Token + customer approval |
+| DELETE | \`/api/v2/projects/{id}\` | X-Project-Token |
+| GET | \`/api/v2/admin/queue\` | X-Admin-Key |
+| GET | \`/api/v2/admin/versions/{version}/package\` | X-Admin-Key |
+| PATCH | \`/api/v2/admin/versions/{version}\` | X-Admin-Key |
 
-~~~json
-{
-  "style": "classic",
-  "hair": "short",
-  "pose": "wave",
-  "size_mm": 80,
-  "seed": 100,
-  "colors": {
-    "skin": "#dca77c",
-    "hair": "#31221f",
-    "top": "#ed6c69",
-    "bottom": "#637da8"
-  }
-}
+No endpoint marks a payment as successful. All print/ship states are manually
+recorded operator attestations.
+
+## Test and operational QA
+
+~~~bash
+npm test
+python -m pytest services/python/tests -q
+python -m compileall -q services/python tools/blender
 ~~~
 
-The server hashes customer project tokens, privately stores metadata-stripped photos, validates inputs, caps the number of jobs and never treats browser requests as payment or physical printer approval.
+These automated tests exercise authentication, input rejection, queued jobs and
+access protection with **test doubles of external GPU reconstruction**. They
+do not prove actual COLMAP CUDA operation or physical resemblance.
 
-## Quality gate
+When the GPU worker is offline, retention cleanup must still be scheduled:
+\`python -m minimo.maintenance\` via a daily OS scheduler with the same secure
+\`MINIMO_DATA_DIR\`. Backups must honor the same retention policy.
 
-Passing API and Python generator tests means the pipeline **produces correct file structure**. It does **not** prove:
-- A customer face is accurately reconstructed from a single photograph.
-- Intersecting shells have been fused into one manufacturable watertight object.
-- A printer will reproduce preview colors or accept the chosen material.
-- Paid customer ordering, shipping, business registration and refund systems work.
+## Critical production prerequisites
 
-**Operator MUST inspect physical material and the supplier's format/geometry constraints first.**
+- Stable, secure processing host and tested GPU model
+- Verified TLS/WAF/restricted access/backup restores/logging
+- Customer consent language and local law review for face photos
+- Proper customer accounts and real multi-factor operator identities (current
+  token model is a pilot foundation)
+- Handling for GPU failure, retry, refunds, cancellation and customer support
+- Proven printability/texture validation and an actual physical first article
+- A separate verified merchant payment integration, if accepting orders
 
-See [Printing QA](PRINTING-QA.md) and [Go-live plan](GO-LIVE.md).
+**Never interpret green CI checks as “photo-identical person” or “print ready”.**

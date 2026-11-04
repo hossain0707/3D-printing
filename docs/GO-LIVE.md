@@ -1,43 +1,53 @@
-# Commercial Launch Gate — What is Still Required
+# MINIMO REAL — Launch Gate
 
-The public deployment is a **real functioning customer design preview and print-candidate exporter**, but not a complete transaction service. This distinction is intentional.
+## Existing implementation
 
-## Live now
-- Polished mobile storefront / landing page, local photo processing, optional CPU AI landmarks, real 3D character preview.
-- Customization, regenerate, version approval, downloadable 3D and texture bundle.
-- Example retail prices are explicitly illustrative.
+- New realistic multi-photo frontend and real-model-only viewer
+- Private upload with consent, size/type checks and duplicate detection
+- Owner-scoped photo project access and explicit delete endpoint
+- Transactional generation job persistence and worker status
+- COLMAP real SfM/MVS/Poisson/photographic texturing command orchestration
+- Blender output conversion, metric candidate, GLB and QA report
+- Private customer package approval/download
+- Restricted operator queue and manual quality statuses
+- GitHub automated frontend and Python API tests
 
-## Not connected (must be completed for paid orders)
-1. Dedicated private database and object storage. Do not reuse an unrelated application's database.
-2. Authenticated server API, rate limits, image security checks, model retention/deletion policies.
-3. Customer checkout via a properly registered payment gateway; never pretend payment succeeded.
-4. Durable customer and operator accounts; secure admin production/order dashboard and audit logging.
-5. Quote and print-vendor integration, supplier SLA, output tolerances, material/finish/color profile.
-6. Email/SMS/Kakao notifications with verified senders; shipping carrier tracking.
-7. Refund/cancellation/defect/reprint handling and consumer disclosures.
-8. Korean business registration, sales/tax requirements and immigration/work authorization (as applicable).
-9. Legal review of personal photo consent, data processing disclosures and 3rd-party IP permissions.
-10. E2E accessibility/performance/security checks, real device testing, and physical print QA on at least 3-5 representative figures.
+## Still not verified / not deployed
 
-## Estimated go-live maturity (not dates)
-- **Prototype:** UI and on-device processing; exists now.
-- **Factory validation:** print vendor import → mesh repair → first article → color/sample approval; incomplete.
-- **Commerce enablement:** operator authentication, persistent orders, payment and dispatch; incomplete.
-- **Ongoing operations:** fulfillment alerts, inventory, privacy audits and customer support; incomplete.
+| Requirement | Current state |
+|:--|:--|
+| CUDA-ready COLMAP GPU host | Not provisioned |
+| Python processing API publicly reachable via HTTPS | Not connected |
+| Real human dataset end-to-end successful reconstruction | Not verified |
+| Full-color print supplier contract and test print | Not completed |
+| Measured face/garment likeness and customer satisfaction | Not measured |
+| Printer-ready geometry, strength and color | Not certified |
+| Customer sign-in, real durable commerce orders | Not implemented |
+| Payment/refunds/shipping | Not implemented |
+| Formal privacy notice, secure backup retention, WAF/monitoring | Requires commercial deployment |
+| Business/merchant registration and applicable employment permission | Requires owner's local review |
 
-## Suggested vendor onboarding fields
-- Business name/contact
-- Supported colored formats and texture packaging (OBJ/MTL/PNG, 3MF etc.)
-- Full-color technology and color management (sRGB, ICC profile)
-- Minimum wall thickness / hole diameter / minimum details
-- Per-figure print price at 50, 80 and 100 mm
-- Bulk volume price, support removal and coating/finish fees
-- Reprint/warranty terms and packaging options
+## Non-negotiable acceptance before paid orders
 
-## Security policy
-Never store client photographs in a public repository or Vercel source bundle. Store in private authenticated storage only after consent and a retention policy. Do not include service-role keys, signing keys or payment credentials in browser JavaScript or public env variables.
+1. Deploy and secure the processing API/worker on tested infrastructure.
+2. Capture consented multi-view images and prove at least one **real** textured
+   full-body/face reconstruction is produced end-to-end.
+3. Demonstrate stable private preview, customer correction/re-capture, deletion,
+   operator review and file download.
+4. Repair the mesh for a selected full-color print supplier and receive a
+   physically printed sample with approved skin/outfit colors.
+5. Establish real merchant, refund, shipping and support processes, including
+   secure customer identities and verified payment webhooks.
+6. Validate the end-to-end process on multiple people with different lighting,
+   hairstyles and clothing.
+7. Document test logs, sample photographs (only with permission), measurements,
+   printer constraints and operator acceptance.
 
+## Product claim policy
 
-## Python service implementation update (November 2026)
-
-A FastAPI service, private image storage, owner-protected project versions, worker queue and restricted operator console are now present in the repository. They are **not publicly hosted**, and **do not** include a payment gateway or durable customer commerce orders. The static Vercel customer demo remains usable independently. See [Python Backend Operations](PYTHON-BACKEND.md).
+The active site must never:
+- display a generic or AI-generated cartoon as a “real scanned preview”;
+- claim a model succeeded when a GPU stage failed;
+- claim a model is printer-approved based only on geometry export;
+- present unverified payment/checkout states;
+- guarantee 100% identical appearance from arbitrary phone images.

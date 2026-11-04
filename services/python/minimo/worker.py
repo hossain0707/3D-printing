@@ -1,70 +1,72 @@
-"""Single-host durable job runner. Run as a separate process from the API."""
-from __future__ import annotations
-
-import json
+"""Durable single-host reconstruction queue and retention cleanup."""
 import logging
-import os
-import sqlite3
+import shutil
 import time
 from datetime import datetime, timezone
-from pathlib import Path
-
 from .db import connect, initialize
-from .geometry import create_bundle
+from .photogrammetry import run_reconstruction
 from .settings import Settings
 
-logger = logging.getLogger(__name__)
+logger=logging.getLogger(__name__)
+def now(): return datetime.now(timezone.utc).isoformat()
 
-
-def utc() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-
-def process_next(settings: Settings) -> bool:
+def process_next(settings):
     with connect(settings.data_dir) as db:
         db.execute("BEGIN IMMEDIATE")
-        row=db.execute("SELECT * FROM jobs WHERE state='queued' ORDER BY created_at LIMIT 1").fetchone()
-        if not row:
-            db.execute("COMMIT")
-            return False
-        db.execute("UPDATE jobs SET state='running',updated_at=? WHERE id=?",(utc(),row["id"]))
+        job=db.execute("SELECT * FROM jobs WHERE state='queued' ORDER BY created_at LIMIT 1").fetchone()
+        if not job:
+            db.execute("COMMIT");return False
+        db.execute("UPDATE jobs SET state='running',stage='starting',updated_at=? WHERE id=?",(now(),job["id"]))
         db.execute("COMMIT")
-        project=db.execute("SELECT * FROM projects WHERE id=?",(row["project_id"],)).fetchone()
+    def stage(name):
+        logger.info("job=%s stage=%s",job["id"],name)
+        with connect(settings.data_dir) as db:
+            db.execute("UPDATE jobs SET stage=?,updated_at=? WHERE id=?",(name,now(),job["id"]))
     try:
-        if not project:
-            raise ValueError("Project disappeared")
-        path=settings.data_dir/"exports"/(row["version_id"]+".zip")
-        result=create_bundle(Path(project["source_path"]),path,
-                             row["project_id"],row["version_id"],json.loads(row["params_json"]))
+        result=run_reconstruction(settings.data_dir/"projects"/job["project_id"],
+            job["id"],job["version_id"],job["target_height_mm"],job["quality"],settings,stage)
         with connect(settings.data_dir) as db:
             db.execute("BEGIN IMMEDIATE")
             db.execute(
-                "INSERT INTO versions(id,project_id,job_id,zip_path,manifest_json,created_at) VALUES(?,?,?,?,?,?)",
-                (row["version_id"],row["project_id"],row["id"],str(path),
-                 json.dumps(result["manifest"]),utc()))
-            db.execute("UPDATE jobs SET state='completed',updated_at=? WHERE id=?",(utc(),row["id"]))
+                "INSERT INTO versions(id,project_id,job_id,preview_path,package_path,report_path,created_at)"
+                " VALUES(?,?,?,?,?,?,?)",
+                (job["version_id"],job["project_id"],job["id"],
+                 result["preview_path"],result["package_path"],result["report_path"],now()))
+            db.execute("UPDATE jobs SET state='completed',stage='ready_for_review',updated_at=? WHERE id=?",
+                       (now(),job["id"]))
             db.execute("COMMIT")
-        logger.info("Job completed: %s",row["id"])
     except Exception:
-        logger.exception("Generation failed: %s",row["id"])
+        logger.exception("Realistic reconstruction failed for %s",job["id"])
         with connect(settings.data_dir) as db:
-            db.execute("UPDATE jobs SET state='failed',error=?,updated_at=? WHERE id=?",
-                       ("Generation failed; contact the operator",utc(),row["id"]))
+            db.execute("UPDATE jobs SET state='failed',stage='failed',error=?,updated_at=? WHERE id=?",
+                       ("Reconstruction failed. Check overlapping photos or processing hardware.",now(),job["id"]))
     return True
 
+def purge_expired(settings):
+    with connect(settings.data_dir) as db:
+        db.execute("BEGIN IMMEDIATE")
+        rows=db.execute("SELECT id FROM projects WHERE expires_at<? AND "
+          "id NOT IN(SELECT project_id FROM jobs WHERE state IN ('queued','running'))",
+          (now(),)).fetchall()
+        ids=[r["id"] for r in rows]
+        for pid in ids: db.execute("DELETE FROM projects WHERE id=?",(pid,))
+        db.execute("COMMIT")
+    for pid in ids:
+        shutil.rmtree(settings.data_dir/"projects"/pid,ignore_errors=True)
+    return len(ids)
 
-def main() -> None:
+def main():
     logging.basicConfig(level=logging.INFO)
     settings=Settings.load()
     initialize(settings.data_dir)
-    # Jobs interrupted by a worker restart are retried.
+    if not shutil.which(settings.colmap) or not shutil.which(settings.blender):
+        raise SystemExit("COLMAP and Blender must be installed before starting reconstruction worker")
     with connect(settings.data_dir) as db:
-        db.execute("UPDATE jobs SET state='queued' WHERE state='running'")
-    logger.info("MINIMO CPU worker started")
+        db.execute("UPDATE jobs SET state='queued',stage='worker_restart' WHERE state='running'")
+    last_purge=0
     while True:
-        if not process_next(settings):
-            time.sleep(1.5)
+        if time.monotonic()-last_purge>3600:
+            purge_expired(settings);last_purge=time.monotonic()
+        if not process_next(settings):time.sleep(1.5)
 
-
-if __name__ == "__main__":
-    main()
+if __name__=="__main__":main()

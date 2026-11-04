@@ -1,129 +1,142 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="theme-color" content="#f7f4ee"/>
-  <meta name="description" content="Meet your mini-me. Turn one photo into an adorable personalized 3D chibi, preview every angle and prepare it for full-color printing."/>
-  <title>MINIMO Studio — Your little big thing</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="/styles.css"/>
-  <script type="importmap">
-    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}
-  </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101d29">
+<meta name="description" content="MINIMO REAL — genuine multi-view 3D reconstruction from your own photographs. Capture, reconstruct, review, and prepare a textured model for print-quality inspection.">
+<title>MINIMO REAL — Your likeness, in three dimensions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 </head>
 <body>
-  <div class="announcement">✨ NEW: A little you, in full color. <a href="#studio">Create yours →</a></div>
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="MINIMO Studio home"><span class="brand-mark"><i></i><i></i><i></i></span><span>minimo<span class="brand-period">.</span></span></a>
-    <nav class="nav" aria-label="Primary"><a href="#how">How it works</a><a href="#collection">The collection</a><a href="#faq">FAQ</a></nav>
-    <a class="nav-cta" href="#studio">Make my mini <span>↗</span></a>
-  </header>
-  <main id="top">
-    <section class="hero section-wrap">
-      <div class="hero-copy reveal">
-        <span class="eyebrow"><span class="asterisk">✳</span> YOUR FACE. YOUR STYLE. YOUR LITTLE WORLD.</span>
-        <h1>You, but <em>little.</em><br/>Joy, but <span class="under-swish">huge.</span></h1>
-        <p>Turn a favorite photo into a ridiculously cute 3D mini-you. Match your outfit, pick your vibe, see it from every angle. Made to be cherished, not scrolled past.</p>
-        <div class="hero-actions"><a class="btn btn-dark" href="#studio">Create my mini <span>↗</span></a><a class="text-link" href="#how">See the magic <span>↘</span></a></div>
-        <div class="hero-trust"><span class="trust-avatars">☺ ♥ ✿</span><span>One photo. Your colors. Endless personality.</span></div>
-      </div>
-      <div class="hero-art reveal" aria-label="Animated miniature character showcase">
-        <div class="hero-orbit hero-orbit-a"></div><div class="hero-orbit hero-orbit-b"></div>
-        <div id="hero-canvas" class="three-stage hero-stage"></div>
-        <span class="float-tag float-tag-one">✦ 100% your vibe</span>
-        <span class="float-tag float-tag-two">♡ made for you</span>
-        <span class="hero-side-label">A LITTLE VERSION OF YOU — MADE WITH LOVE</span>
-        <div class="hero-bottom-label"><strong>THE MINI ME ERA</strong><span>01 — INFINITE CUTE</span></div>
-      </div>
-    </section>
-    <div class="ticker" aria-label="Product benefits"><div>PERSONALIZED MAGIC ✳ REAL PHOTO COLORS ✳ 3D PREVIEW ✳ NO DESIGN SKILLS NEEDED ✳ MADE FOR YOUR MOMENTS ✳ PERSONALIZED MAGIC ✳ REAL PHOTO COLORS ✳ 3D PREVIEW ✳</div></div>
-    <section id="how" class="how section-wrap">
-      <div class="section-heading reveal"><span class="eyebrow">01 / HOW THE MAGIC HAPPENS</span><h2>From selfie to <em>tiny celebrity.</em></h2><p>Three easy steps. Very big feelings.</p></div>
-      <div class="steps">
-        <article class="step-card reveal"><span class="step-num">01</span><div class="step-art upload-art"><span class="fake-photo">☺</span><span class="photo-spark">✳</span></div><h3>Drop your photo</h3><p>Upload one clear picture. We work with the colors and details we can actually see.</p></article>
-        <article class="step-card reveal"><span class="step-num">02</span><div class="step-art render-art"><span class="render-face">◕‿◕</span><span class="photo-spark">✦</span></div><h3>Meet mini-you</h3><p>Turn, zoom, tweak, and regenerate until the personality feels right.</p></article>
-        <article class="step-card reveal"><span class="step-num">03</span><div class="step-art box-art"><span class="gift-box">★</span><span class="photo-spark">♡</span></div><h3>Approve the magic</h3><p>Lock your design and prepare the full-color manufacturing files for studio review.</p></article>
-      </div>
-    </section>
-    <section id="studio" class="studio-shell">
-      <div class="section-wrap">
-        <div class="section-heading studio-heading reveal"><span class="eyebrow">02 / THE MINI-ME MAKER</span><h2>Okay, let's make <em>you!</em></h2><p>Your photo stays on your device in this preview demo. No account needed.</p></div>
-        <div class="studio-grid">
-          <div class="creator-panel reveal">
-            <div class="panel-label"><span>YOUR CREATIVE CORNER</span><span class="panel-label-dot">● LOCAL STUDIO</span></div>
-            <div class="upload-field">
-              <div class="control-title"><span class="number-chip">1</span><h3>Your favorite photo</h3></div>
-              <label class="dropzone" id="dropzone" for="photo-input">
-                <input id="photo-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload photo"/>
-                <span id="photo-placeholder" class="photo-placeholder"><span class="upload-icon">↥</span><strong>Click or drop your photo here</strong><small>JPG / PNG / WEBP · max 8 MB · one person</small></span>
-                <img id="photo-thumb" class="photo-thumb" alt="Your uploaded photograph" hidden/>
-              </label>
-              <div id="analysis-status" class="analysis-status"><span class="status-indicator"></span>Demo character ready · add a photo to match colors</div>
-            </div>
-            <div class="control-block">
-              <div class="control-title"><span class="number-chip">2</span><h3>Pick your personality</h3></div>
-              <div class="style-grid" role="group" aria-label="Character style">
-                <button type="button" class="style-choice selected" data-style="classic"><span>☺</span><strong>Classic</strong><small>everyday cute</small></button>
-                <button type="button" class="style-choice" data-style="dreamy"><span>✿</span><strong>Dreamy</strong><small>extra soft</small></button>
-                <button type="button" class="style-choice" data-style="collector"><span>★</span><strong>Collector</strong><small>bold & playful</small></button>
-              </div>
-            </div>
-            <div class="two-controls control-block">
-              <label>Hairstyle<select id="hair"><option value="short">Soft short</option><option value="medium">Medium layers</option><option value="long">Long & flowy</option><option value="bun">Cute bun</option></select></label>
-              <label>Pose<select id="pose"><option value="wave">Friendly wave</option><option value="stand">Classic stand</option><option value="hug">Heart pose</option></select></label>
-            </div>
-            <div class="control-block">
-              <div class="control-title"><span class="number-chip">3</span><h3>Match your colors</h3></div>
-              <p class="helper">Photo-detected shades are approximate. You can change any of them.</p>
-              <div class="swatch-row"><label>Skin <input id="skin" type="color" value="#dca77c"/></label><label>Hair <input id="hair-color" type="color" value="#31221f"/></label><label>Top <input id="top-color" type="color" value="#ed6c69"/></label><label>Bottom <input id="bottom-color" type="color" value="#637da8"/></label></div>
-            </div>
-            <div class="two-controls control-block">
-              <label>Size<select id="size"><option value="50">5 cm · tiny</option><option value="80" selected>8 cm · favorite</option><option value="100">10 cm · statement</option></select></label>
-              <label>Base inscription <input type="text" id="inscription" maxlength="18" placeholder="Optional name"/></label>
-            </div>
-            <div class="creator-actions"><button id="regenerate" type="button" class="btn btn-outline">↻ Regenerate look</button><button id="approve" type="button" class="btn btn-coral">♡ Approve design</button></div>
-            <div id="python-panel" class="python-panel" hidden>
-              <button id="python-generate" class="btn btn-dark" type="button">Generate with Python</button>
-              <span id="python-state" role="status" aria-live="polite">Python backend not configured</span>
-            </div>
-            <p class="mini-disclaimer">Changes are applied to a real 3D template. AI landmarks run on-device when available; absent/hidden details are artistically estimated. This is not photorealistic reconstruction.</p>
-          </div>
-          <div class="preview-panel reveal">
-            <div class="preview-top"><span class="live-pill"><span></span> LIVE 3D PREVIEW</span><span id="version-label">VERSION 01</span></div>
-            <div class="preview-canvas-wrap"><div id="studio-canvas" class="three-stage studio-stage" aria-label="Rotatable 3D chibi character preview"></div><span class="preview-deco preview-deco-a">✳</span><span class="preview-deco preview-deco-b">✦</span></div>
-            <div class="preview-bottom">
-              <div><strong>Meet your mini ✳</strong><p>Drag to rotate · scroll or pinch to zoom</p></div><div class="price-lock"><span>Target retail price</span><strong id="estimate">₩59,000</strong></div>
-            </div>
-            <div class="preview-notice"><span>ⓘ</span><p>Digital preview only. Physical colors, texture and geometry may differ. Every model requires supplier checks before printing.</p></div>
-            <div id="approval-info" class="approval-info" hidden><span class="approved-icon">✓</span><div><strong>Design approved on this device</strong><small id="approval-detail">Version locked for export</small></div></div>
-            <button id="export" type="button" class="btn btn-dark download-btn" disabled>Download production package ↓</button>
-            <p class="handoff">This public release provides design and print-file export. Online payment, persistent orders, and studio notifications are not yet connected.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section id="collection" class="collection section-wrap">
-      <div class="section-heading reveal"><span class="eyebrow">03 / TINY THINGS, BIG STORIES</span><h2>Every reason is a <em>good reason.</em></h2><p>Made for special people and special days.</p></div>
-      <div class="collection-grid">
-        <article class="collection-card peach reveal"><div class="collection-symbol">♡<span>♡</span></div><span>01 / COUPLES</span><h3>Two peas in a tiny pod.</h3><p>Anniversaries & little love stories</p></article>
-        <article class="collection-card lavender reveal"><div class="collection-symbol">✿<span>✿</span></div><span>02 / GRADUATION</span><h3>Big wins. Little you.</h3><p>That diploma deserves a miniature</p></article>
-        <article class="collection-card butter reveal"><div class="collection-symbol">★<span>✦</span></div><span>03 / PETS & FAMILY</span><h3>Your favorite souls.</h3><p>Every member of your little universe</p></article>
-      </div>
-    </section>
-    <section class="promise"><div class="section-wrap promise-inner"><span class="promise-star">✳</span><div><span class="eyebrow">SMALL OBJECT. HUGE FEELINGS.</span><h2>Made to hold a <em>moment.</em></h2><p>Photos get lost in your camera roll. A mini-you gets a special spot on your shelf.</p><a class="btn btn-light" href="#studio">Make something memorable ↗</a></div></div></section>
-    <section id="faq" class="faq section-wrap"><div class="section-heading reveal"><span class="eyebrow">04 / LITTLE QUESTIONS</span><h2>Need to <em>know?</em></h2></div><div class="faq-list">
-      <details><summary>Will the figure look exactly like my photo?</summary><p>It preserves selected visible colors and some facial proportions when AI landmarks are available, but uses intentionally cute, stylized geometry. Hidden parts are estimates; exact likeness is not guaranteed.</p></details>
-      <details><summary>Can I regenerate or change details?</summary><p>Yes. Regenerate changes the look while keeping your chosen colors. You can also change hairstyle, pose and shades manually. Re-approve after every change.</p></details>
-      <details><summary>Is the file immediately ready to send for printing?</summary><p>The export includes a GLB preview and textured OBJ/MTL/PNG print candidate. A human operator and the print supplier must validate wall thickness, geometry, color compatibility and manufacturability before accepting it.</p></details>
-      <details><summary>Can I place a paid order here today?</summary><p>Not yet. This is a real interactive design and manufacturing-export release, not an active commerce checkout. Payment, private cloud order storage and operator authentication must be configured before selling.</p></details>
-      <details><summary>Where does my photo go?</summary><p>The default photo analyzer runs in your browser. Your photo is not uploaded to our servers. The optional AI landmark model may be downloaded from a public model host; your photo itself is processed locally.</p></details>
-    </div></section>
-  </main>
-  <footer class="footer"><div class="section-wrap footer-inner"><div><a class="brand" href="#top"><span class="brand-mark"><i></i><i></i><i></i></span><span>minimo<span class="brand-period">.</span></span></a><p>Little you. Limitless joy.<br/>A custom character atelier concept.</p></div><div class="footer-links"><a href="#how">Process</a><a href="#studio">Create</a><a href="#faq">FAQ</a><a href="https://github.com/hossain0707/3D-printing" target="_blank" rel="noopener">GitHub ↗</a></div><div class="footer-copy">© 2026 MINIMO Studio concept<br/>Built for the 3D-printing project.</div></div></footer>
-  <div id="toast" class="toast" aria-live="polite"></div>
-  <script src="/api-config.js"></script>
-  <script type="module" src="/app.js"></script>
+<header class="header">
+<a class="logo" href="#top"><span class="logo-emblem">m<span>.</span></span><span>MINIMO <strong>REAL</strong></span></a>
+<nav aria-label="Main navigation"><a href="#process">The process</a><a href="#capture">Create replica</a><a href="#standards">Quality & privacy</a></nav>
+<a class="small-cta" href="#capture">Start a scan <span>↗</span></a>
+</header>
+<main id="top">
+<section class="hero wrap">
+<div class="hero-copy">
+<div class="eyebrow"><span class="pulse"></span> MULTI-VIEW PHOTO RECONSTRUCTION <span class="id-label">/ 2026</span></div>
+<h1>Look like <em>you.</em><br>Not a cartoon.</h1>
+<p class="hero-lead">Reconstruct a real person from multiple photographs—preserving visible facial features, clothing detail, and texture in a genuine 3D model.</p>
+<div class="hero-buttons"><a class="button primary" href="#capture">Begin your capture <span>↗</span></a><a class="button quiet" href="#process">Explore the technology <span>↓</span></a></div>
+<div class="hero-caption"><span class="line-icon">◌</span> Real photogrammetry. No generic faces. No fabricated preview.</div>
+</div>
+<div class="hero-visual" role="img" aria-label="Abstract technical wireframe representation of three-dimensional facial reconstruction, not an actual customer result">
+<div class="blueprint-top"><span>3D ACQUISITION / FACIAL GEOMETRY</span><span>FIG. 001</span></div>
+<svg viewBox="0 0 520 530" class="blueprint-face" aria-hidden="true">
+<defs>
+<linearGradient id="meshGlow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8ee7d4"/><stop offset="1" stop-color="#5ba5c7"/></linearGradient>
+<radialGradient id="orb"><stop stop-color="#4288a1" stop-opacity=".15"/><stop offset="1" stop-color="#4288a1" stop-opacity="0"/></radialGradient>
+</defs>
+<circle cx="260" cy="275" r="235" fill="url(#orb)"/>
+<g stroke="#38617a" stroke-width="1" opacity=".50" fill="none">
+<ellipse cx="260" cy="272" rx="212" ry="205" transform="rotate(-26 260 272)"/>
+<ellipse cx="260" cy="272" rx="212" ry="205" transform="rotate(40 260 272)"/>
+<path d="M26 272H492M260 20V505M84 137L441 423M84 420L437 130" stroke-dasharray="3 9"/>
+</g>
+<g class="head-geometry" fill="none" stroke="url(#meshGlow)" stroke-width="1.5" stroke-linejoin="round">
+<path d="M261 65C169 68 129 148 130 238C128 341 174 413 259 463C344 413 391 341 388 238C389 148 350 68 261 65Z"/>
+<path d="M259 65C229 99 210 149 206 214C204 313 222 415 259 463M259 65C291 100 312 151 316 218C318 314 298 416 259 463"/>
+<path d="M155 135C215 116 303 117 362 135M136 199C205 181 315 182 383 199M135 252C209 241 315 242 386 252M151 312C207 324 310 326 370 312M192 390C226 374 295 374 331 390"/>
+<path d="M133 239L204 218L258 225L317 218L388 239M133 239L211 281L260 288L310 281L388 239"/>
+<path d="M155 135L206 214L259 157L316 218L362 135M206 214L260 288L316 218M211 281L192 390L258 354L331 390L310 281M192 390L259 463L331 390M259 157V288M258 354L260 288"/>
+<path d="M151 246C155 225 178 216 206 223C228 229 232 244 234 254M286 254C289 243 297 229 316 223C344 217 369 226 373 246" stroke-width="2.5"/>
+<path d="M225 323C239 335 276 337 297 323M245 359C253 366 265 366 275 359"/>
+</g>
+<g fill="#a9f6df" opacity=".95">
+<circle cx="130" cy="238" r="4"/><circle cx="388" cy="238" r="4"/><circle cx="259" cy="65" r="4"/><circle cx="260" cy="288" r="4"/><circle cx="259" cy="463" r="4"/>
+</g>
+<g fill="#a9f6df" font-family="monospace" font-size="11">
+<text x="27" y="102">X_001 / FACE</text><text x="350" y="455">PERSPECTIVE 3D</text>
+</g>
+</svg>
+<div class="blueprint-bottom"><span><i></i> SCHEMATIC VISUALIZATION</span><span>NOT A GENERATED CUSTOMER SCAN</span></div>
+<div class="float-chip chip-a">MULTI-ANGLE INPUT</div><div class="float-chip chip-b">PHOTO TEXTURES</div>
+</div>
+</section>
+
+<div class="ticker"><div>REAL GEOMETRY <span>✳</span> PHOTO-DERIVED TEXTURES <span>✳</span> MULTI-VIEW RECONSTRUCTION <span>✳</span> HUMAN QUALITY CONTROL <span>✳</span> REAL GEOMETRY <span>✳</span> PHOTO-DERIVED TEXTURES <span>✳</span></div></div>
+
+<section id="process" class="process wrap">
+<div class="section-top"><div><span class="overline">01 / THE TECHNOLOGY</span><h2>From photographs<br>to <em>real geometry.</em></h2></div><p>No cartoon conversion. The model must be derived from the actual overlapping images you provide and must pass reconstruction before a preview is shown.</p></div>
+<div class="process-grid">
+<article class="process-item"><span class="process-number">01 /</span><div class="process-icon">◎</div><h3>Capture your angles</h3><p>Provide 12–40 sharp, overlapping photos covering the face, sides, hairstyle and outfit.</p></article>
+<article class="process-item"><span class="process-number">02 /</span><div class="process-icon">⌁</div><h3>Recover 3D structure</h3><p>Match image features and camera viewpoints, then reconstruct actual surface geometry.</p></article>
+<article class="process-item"><span class="process-number">03 /</span><div class="process-icon">▧</div><h3>Project real textures</h3><p>Apply color and detail from photographed surfaces instead of generic character materials.</p></article>
+<article class="process-item"><span class="process-number">04 /</span><div class="process-icon">↗</div><h3>Review before print</h3><p>Check the real 3D model. Approve the design; an operator must still verify manufacturing.</p></article>
+</div>
+</section>
+
+<section id="capture" class="studio">
+<div class="wrap">
+<div class="studio-heading"><span class="overline">02 / CREATE YOUR REAL REPLICA</span><h2>Begin with <em>the real you.</em></h2><p>Upload your own multi-angle photo set. Images are sent only after you explicitly submit the project to a configured private processing server.</p></div>
+<div class="studio-columns">
+<div class="form-card">
+<div class="card-top"><span>CAPTURE SESSION</span><span id="backend-badge" class="availability">Checking processing service</span></div>
+<div class="step-label"><span>01</span><div><h3>Your photographs</h3><p>12–40 different angles, preferably in consistent light.</p></div></div>
+<div id="dropzone" class="dropzone" role="group" aria-label="Photograph collection">
+<input id="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Select multiple photographs"/>
+<span class="drop-icon">⇧</span><strong>Choose or drop your photos</strong>
+<small>JPG / PNG / WEBP · 12 MB each · 12–40 images</small>
+</div>
+<div class="capture-count"><span id="file-counter">0 / 12 minimum photographs</span><button id="clear-photos" type="button" class="text-button">Clear selection</button></div>
+<div id="image-thumbs" class="image-thumbs" aria-live="polite"></div>
+<div class="step-label second"><span>02</span><div><h3>Choose your figure size</h3><p>Dimension is estimated from the reconstructed longest axis. Final orientation and measurements require operator checking.</p></div></div>
+<div class="input-grid">
+<label class="field">Figure height
+<select id="height"><option value="80">80 mm</option><option value="100" selected>100 mm</option><option value="120">120 mm</option><option value="150">150 mm</option></select></label>
+<label class="field">Reconstruction detail
+<select id="quality"><option value="standard">Standard</option><option value="high">High (more processing)</option></select></label>
+</div>
+<div class="step-label second"><span>03</span><div><h3>Consent & privacy</h3><p>Only submit photographs of yourself or people who consented to this specific use.</p></div></div>
+<label class="consent"><input id="consent" type="checkbox"/><span>I have permission to submit every person's likeness in these images for 3D reconstruction, understand the images are processed on the private backend, and agree to deletion under its retention policy.</span></label>
+<button id="submit-scan" class="button primary full" type="button" disabled>Start real 3D reconstruction <span>↗</span></button>
+<div id="form-status" class="form-status" role="status" aria-live="polite">Checking service availability...</div>
+<p class="form-foot">No payment is collected here. No synthetic fallback model is generated when reconstruction fails.</p>
+</div>
+<div class="result-card">
+<div class="result-header"><span><i class="green-dot"></i> REAL MODEL REVIEW</span><span id="result-state">NO RECONSTRUCTION</span></div>
+<div id="model-stage" class="model-stage">
+<div id="viewer" class="viewer" hidden></div>
+<div id="empty-model" class="empty-model"><div class="empty-symbol"><span>◈</span></div><strong>Your real 3D reconstruction will appear here</strong><p>Unlike a character template, this viewer stays empty until an actual photo-based model is generated.</p></div>
+</div>
+<div class="result-bottom"><div><strong id="model-title">Awaiting a capture session</strong><p id="model-subtitle">Submit 12–40 photographs to begin.</p></div><span class="model-kind">GLB 3D PREVIEW</span></div>
+<div id="reconstruction-details" class="reconstruction-details" hidden><strong>Processing progress</strong><p id="stage-description">Queued for the reconstruction worker.</p><div class="activity-track"><div id="activity-bar"></div></div><small>Stages reflect actual backend progress, not an estimated percentage.</small></div>
+<div class="result-actions">
+<button id="approve-model" type="button" class="button pale" disabled>Approve reconstructed design</button>
+<button id="download-model" type="button" class="button outline" disabled>Download manufacturing candidate ↓</button>
+<button id="view-report" type="button" class="text-button" disabled>View quality report</button>
+<button id="delete-project" type="button" class="text-button danger" disabled>Delete my project & photos</button>
+</div>
+<div id="qa-result" class="qa-result" hidden></div>
+<div class="result-warning"><strong>Not automatically print-certified.</strong> Shape, scale, mesh strength, texture accuracy and supplier acceptance must be checked by a real operator. Photogrammetry may fail on hair, reflective surfaces or inconsistent views.</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="capture-guide wrap">
+<div class="section-top"><div><span class="overline">03 / GET THE BEST RESULT</span><h2>Better photos.<br><em>Better likeness.</em></h2></div><p>Reconstruction quality depends on image overlap and consistency. Avoid selfies taken days apart with different poses, lighting or clothing.</p></div>
+<div class="guide-grid">
+<article><span class="guide-no">A</span><h3>Face & hairstyle</h3><p>Take front, left, right and 45° views. Show ears, hairline and the full head whenever possible.</p></article>
+<article><span class="guide-no">B</span><h3>Walk around the subject</h3><p>Move the camera around a still person with about 60–80% overlap between adjacent frames.</p></article>
+<article><span class="guide-no">C</span><h3>Keep everything consistent</h3><p>Use the same outfit and evenly lit environment; avoid motion blur and shifting facial expressions.</p></article>
+<article><span class="guide-no">D</span><h3>Capture missing detail</h3><p>Include sides, back and shoes for a full-body miniature. Fine hair and fabric may require manual correction.</p></article>
+</div>
+</section>
+
+<section id="standards" class="standards"><div class="wrap standards-inner">
+<div><span class="overline">04 / BUILT FOR TRUST</span><h2>Real results.<br><em>Clear limitations.</em></h2></div>
+<div class="standards-copy"><p><strong>What this service does:</strong> reconstructs surfaces and image-derived textures using true multi-view photogrammetry, provided a CUDA-enabled worker and compatible photos are available.</p><p><strong>What it cannot promise:</strong> perfect likeness, correct unseen geometry, certified physical printing, pricing, or commercial checkout.</p><p><strong>Private by design:</strong> photos remain in restricted processing storage, projects are protected by private tokens, and customers can request project deletion. All backend retention and security controls must be enabled before opening public upload access.</p></div>
+</div></section>
+</main>
+<footer><div class="wrap footer-wrap"><span class="logo"><span class="logo-emblem">m<span>.</span></span> MINIMO REAL</span><span>Photo-based 3D reconstruction · Engineering preview</span><a href="https://github.com/hossain0707/3D-printing" target="_blank" rel="noopener">GitHub project ↗</a></div></footer>
+<script src="/api-config.js"></script>
+<script type="module" src="/app.js"></script>
 </body></html>

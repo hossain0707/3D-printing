@@ -1,71 +1,84 @@
-// Operator-only API client. Never embed credentials in a public bundle.
-const $=selector=>document.querySelector(selector);
-const endpoint=$("#api-url"),key=$("#admin-key"),status=$("#status");
-endpoint.value=String(window.MINIMO_API_URL||"");
-const add=(tag,text)=>{const node=document.createElement(tag);node.textContent=String(text);return node;};
-const origin=()=>endpoint.value.trim().replace(/\/+$/,"");
-async function request(path,options={}){
- const host=origin();if(!/^https:\/\//.test(host)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(host))
-   throw Error("Use HTTPS for the Python API; local HTTP is allowed only on localhost.");
- if(key.value.length<32)throw Error("Enter your 32+ character operator key.");
- const response=await fetch(host+path,{...options,headers:{"X-Admin-Key":key.value,...options.headers},cache:"no-store"});
- if(!response.ok){let message="HTTP "+response.status;try{const data=await response.json();message=data.detail||message;}catch{}throw Error(message);}
- return response;
+// Private operator console: never bake admin credentials into public source.
+const $=s=>document.querySelector(s);
+const url=$("#api-url"),key=$("#admin-key"),status=$("#status");
+url.value=String(window.MINIMO_API_URL||"");
+function td(row,value){const cell=document.createElement("td");cell.textContent=String(value);row.append(cell);return cell;}
+function sanitizeOrigin(value){
+  const base=value.trim().replace(/\/+$/,"");
+  if(!/^https:\/\//.test(base)&&!/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(base))
+    throw Error("Use HTTPS (or HTTP localhost for development only).");
+  return base;
 }
-function cell(row,content){const td=document.createElement("td");if(content instanceof Node)td.append(content);else td.textContent=String(content);row.append(td);return td;}
-function tool(name,callback,css="secondary"){const btn=document.createElement("button");btn.type="button";btn.textContent=name;btn.className=css;btn.addEventListener("click",()=>callback().catch(err=>status.textContent="Error: "+err.message));return btn;}
-async function downloadVersion(vid){
- status.textContent="Retrieving private manufacturing candidate…";
- const response=await request("/api/v1/admin/versions/"+encodeURIComponent(vid)+"/package");
- const blob=await response.blob();const url=URL.createObjectURL(blob);
- const link=document.createElement("a");link.href=url;link.download="minimo-operator-"+vid+".zip";
- document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),20000);
- status.textContent="Downloaded private package. Operator QA is still required.";
-}
-async function transition(version,state){
- await request("/api/v1/admin/versions/"+encodeURIComponent(version.id)+"/production",{
-   method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:state})
- });await refresh();
+async function api(path,options={}){
+  const base=sanitizeOrigin(url.value);
+  if(key.value.length<32)throw Error("Enter a valid operator access key.");
+  const response=await fetch(base+path,{
+    ...options,
+    cache:"no-store",
+    headers:{"X-Admin-Key":key.value,...options.headers}
+  });
+  if(!response.ok){let reason="HTTP "+response.status;
+    try{reason=(await response.json()).detail||reason;}catch{}
+    throw Error(reason);
+  }
+  return response;
 }
 const transitions={
- unreviewed:["needs_repair","validated","rejected"],
- needs_repair:["validated","rejected"],
- validated:["needs_repair","submitted","rejected"],
- submitted:["printed","rejected"],
- printed:["shipped"],
- shipped:[],rejected:[]
+  review_required:["needs_repair","geometry_reviewed","rejected"],
+  needs_repair:["geometry_reviewed","rejected"],
+  geometry_reviewed:["needs_repair","supplier_accepted","rejected"],
+  supplier_accepted:["printed","rejected"],
+  printed:["shipped"], shipped:[], rejected:[]
 };
-async function refresh(){
- status.textContent="Connecting to the private Python service…";
- const data=await (await request("/api/v1/admin/queue")).json();
- const versions=$("#versions");versions.replaceChildren();
- for(const version of data.versions){
-   const row=document.createElement("tr");
-   cell(row,version.id.slice(0,8));cell(row,version.project_id.slice(0,8));
-   cell(row,version.customer_approved?"Approved":"Not approved");
-   cell(row,version.production_state);
-   const actions=document.createElement("div");actions.className="actions";
-   actions.append(tool("Download",()=>downloadVersion(version.id)));
-   const dropdown=document.createElement("select");
-   dropdown.setAttribute("aria-label","Change production status");
-   dropdown.append(add("option","Choose action"));
-   for(const next of transitions[version.production_state]||[]){
-     const opt=document.createElement("option");opt.value=next;opt.textContent=next.replaceAll("_"," ");
-     dropdown.append(opt);
-   }
-   dropdown.addEventListener("change",()=>{
-     if(!dropdown.value)return;
-     const next=dropdown.value;dropdown.value="";
-     if(confirm("Confirm operator transition to '"+next+"' for "+version.id+"?")){
-       transition(version,next).catch(err=>status.textContent="Error: "+err.message);
-     }
-   });
-   actions.append(dropdown);cell(row,actions);versions.append(row);
- }
- if(!data.versions.length)versions.append(Object.assign(document.createElement("tr"),{textContent:"No versions yet."}));
- const jobs=$("#jobs");jobs.replaceChildren();
- for(const job of data.jobs){const row=document.createElement("tr");cell(row,job.id.slice(0,8));cell(row,job.project_id.slice(0,8));cell(row,job.state);cell(row,job.created_at);jobs.append(row);}
- if(!data.jobs.length)jobs.append(Object.assign(document.createElement("tr"),{textContent:"No jobs yet."}));
- status.textContent="Authenticated. "+data.versions.length+" versions and "+data.jobs.length+" jobs loaded.";
+async function download(id){
+  status.textContent="Retrieving real reconstructed model...";
+  const response=await api("/api/v2/admin/versions/"+id+"/package");
+  const blob=await response.blob(),uri=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=uri;a.download="minimo-review-"+id+".zip";
+  document.body.append(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(uri),20000);
+  status.textContent="Downloaded. Verify geometry, texture, physical scale and supplier requirements.";
 }
-$("#refresh").addEventListener("click",()=>refresh().catch(err=>status.textContent="Connection failed: "+err.message));
+async function update(id,value){
+  await api("/api/v2/admin/versions/"+id,{
+    method:"PATCH",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({status:value})
+  });
+  await refresh();
+}
+function actionsCell(row,version){
+  const cell=document.createElement("td");cell.className="actions";
+  const button=document.createElement("button");button.textContent="Download";
+  button.addEventListener("click",()=>download(version.id).catch(e=>status.textContent=e.message));
+  const select=document.createElement("select");select.setAttribute("aria-label","Change production status");
+  const first=document.createElement("option");first.value="";first.textContent="Change state";select.append(first);
+  for(const value of transitions[version.operator_status]||[]){
+    const option=document.createElement("option");option.value=value;option.textContent=value.replaceAll("_"," ");select.append(option);
+  }
+  select.addEventListener("change",()=>{const value=select.value;select.value="";
+    if(value&&confirm("Confirm operator status '"+value+"' for version "+version.id+"?"))
+      update(version.id,value).catch(e=>status.textContent=e.message);
+  });
+  cell.append(button,select);row.append(cell);
+}
+async function refresh(){
+  status.textContent="Connecting...";
+  const result=await (await api("/api/v2/admin/queue")).json();
+  const versions=$("#versions");versions.replaceChildren();
+  for(const v of result.versions){
+    const row=document.createElement("tr");
+    td(row,v.id.slice(0,10));td(row,v.project_id.slice(0,10));
+    td(row,v.customer_approved?"Yes":"Not yet");td(row,v.operator_status);
+    actionsCell(row,v);versions.append(row);
+  }
+  if(!result.versions.length){const row=document.createElement("tr");const cell=td(row,"No models ready for review.");cell.colSpan=5;versions.append(row);}
+  const jobs=$("#jobs");jobs.replaceChildren();
+  for(const j of result.jobs){
+    const row=document.createElement("tr");td(row,j.id.slice(0,10));
+    td(row,j.project_id.slice(0,10));td(row,j.stage);td(row,j.state);td(row,j.created_at);
+    jobs.append(row);
+  }
+  if(!result.jobs.length){const row=document.createElement("tr");const cell=td(row,"No reconstruction jobs.");cell.colSpan=5;jobs.append(row);}
+  status.textContent="Authenticated. "+result.jobs.length+" jobs, "+result.versions.length+" models.";
+}
+$("#refresh").addEventListener("click",()=>refresh().catch(e=>status.textContent="Access failed: "+e.message));

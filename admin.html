@@ -1,31 +1,43 @@
-<!doctype html>
-<html lang="en"><head>
+<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>MINIMO Studio | Private Operator Console</title>
+<title>MINIMO REAL — Private Production Console</title>
 <style>
-:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#292520;background:#f8f4ef}*{box-sizing:border-box}body{max-width:1100px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;gap:12px}a{color:#ba625b}h1{font-size:clamp(1.8rem,5vw,2.5rem);margin:30px 0 6px}h2{font-size:1.2rem;margin-top:32px}p{color:#6f625c;line-height:1.65}.panel{background:white;border:1px solid #e7ded6;border-radius:16px;padding:20px;margin:18px 0}.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:end}.controls label{flex:1;min-width:210px;font-weight:700;font-size:.85rem}.controls input,.controls select{margin-top:7px;width:100%;padding:12px;border:1px solid #dacdc1;border-radius:10px}button{background:#292520;color:white;border:0;padding:12px 16px;border-radius:10px;cursor:pointer;font-weight:700}button:disabled{opacity:.4;cursor:not-allowed}button.secondary{background:#fff1e6;color:#713e36}button.warn{background:#8d4543}.status{min-height:1.5rem;margin:12px 0;color:#7c5147}table{border-collapse:collapse;width:100%;font-size:.84rem}th,td{text-align:left;padding:13px 10px;border-bottom:1px solid #eee7df;vertical-align:middle}th{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:#8f837b}.actions{display:flex;flex-wrap:wrap;gap:8px}.actions button{font-size:.76rem;padding:8px 11px}code{font-size:.78rem;background:#faf0e7;padding:4px;border-radius:5px}.note{background:#fff3dc;border-left:3px solid #d8a35c;padding:12px 16px}.scroll{overflow-x:auto}@media(max-width:650px){body{padding:12px}.panel{padding:14px}header{flex-wrap:wrap}}
-</style>
-</head><body>
-<header><strong>MINIMO / Operator Console</strong><a href="/">Return to customer website</a></header>
-<h1>Production review queue</h1>
-<p>Private administrative inspection for Python-generated designs. This console does not accept payments or automatically submit print orders.</p>
-<div class="panel">
-  <div class="controls">
-    <label>Python API URL<input id="api-url" placeholder="https://api.example.com" autocomplete="off"></label>
-    <label>Admin API key<input id="admin-key" type="password" placeholder="Enter operator credential" autocomplete="off"></label>
-    <button id="refresh">Connect &amp; refresh</button>
-  </div>
-  <div id="status" class="status" role="status" aria-live="polite">Not connected.</div>
-  <p class="note">The key is used for this browser tab only and is not stored in localStorage or added to URLs. Use HTTPS, do not share the credential, and do not use this prototype console on a shared computer.</p>
+:root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f4f8f7;color:#182d33}*{box-sizing:border-box}
+body{max-width:1100px;margin:0 auto;padding:26px}h1{font-size:clamp(2rem,4vw,3rem);margin-bottom:6px}
+h2{margin-top:34px}p{color:#5f7679;line-height:1.7}.top{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.top a{color:#247c72}.panel{padding:22px;background:white;border:1px solid #d9e6e3;border-radius:16px;margin:20px 0}
+.fields{display:grid;grid-template-columns:1fr 1fr auto;align-items:end;gap:12px}label{font-size:12px;font-weight:800}
+input,select{display:block;width:100%;padding:12px;border:1px solid #cbded9;border-radius:9px;margin-top:7px;background:white}
+button{padding:12px 16px;background:#17323c;color:white;border:0;border-radius:10px;cursor:pointer;font-weight:800}button:disabled{opacity:.45}
+.status{margin-top:14px;font-size:13px;min-height:1rem;color:#2b8076}
+.warn{border-left:4px solid #e4a364;padding:12px 16px;background:#fff6ec;margin-top:19px;font-size:12px}
+.scroller{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-transform:uppercase;font-size:10px;letter-spacing:.08em;color:#73908e}
+th,td{text-align:left;padding:13px;border-bottom:1px solid #e2ebe8}
+td.actions{display:flex;gap:8px;align-items:center}td.actions button{padding:9px 11px;font-size:11px}
+td.actions select{font-size:11px;min-width:160px;margin-top:0}
+@media(max-width:700px){body{padding:14px}.fields{grid-template-columns:1fr}.panel{padding:14px}}
+</style></head><body>
+<header class="top"><strong>MINIMO REAL / PRIVATE OPERATIONS</strong><a href="/">Customer website ↗</a></header>
+<h1>Reconstruction review</h1>
+<p>Actual multi-view scan jobs and manufacturing reviews. No payments, supplier submission, or shipping are triggered automatically.</p>
+<section class="panel">
+<div class="fields">
+<label>HTTPS processing API<input id="api-url" type="url" autocomplete="off" aria-label="API URL"></label>
+<label>Operator access key<input id="admin-key" type="password" autocomplete="off" aria-label="Admin key"></label>
+<button id="refresh" type="button">Authenticate & refresh</button>
 </div>
-<section><h2>Approved models and manufacturing states</h2><div class="panel scroll">
-<table><thead><tr><th>Version</th><th>Project</th><th>Customer approval</th><th>Production</th><th>Tools</th></tr></thead><tbody id="versions"><tr><td colspan="5">Connect to view private versions.</td></tr></tbody></table>
-</div></section>
-<section><h2>Generation jobs</h2><div class="panel scroll">
-<table><thead><tr><th>Job ID</th><th>Project</th><th>Status</th><th>Created</th></tr></thead><tbody id="jobs"><tr><td colspan="4">Connect to view jobs.</td></tr></tbody></table>
-</div></section>
-<p>Before choosing “validated,” inspect the corrected mesh, printer-specific minimum feature thickness, textures, dimensions and the real manufacturing profile. This status is an operator attestation, not an automated check.</p>
-<script src="/api-config.js"></script>
-<script type="module" src="/admin.js"></script>
-</body></html>
+<div id="status" class="status" role="status">Not connected.</div>
+<div class="warn">Use HTTPS and a trusted, private workstation. The operator key stays in tab memory and is never stored in browser storage. The public web page is not a substitute for a hardened operator identity provider.</div>
+</section>
+<section><h2>Reconstructed models</h2><div class="panel scroller"><table>
+<thead><tr><th>Version</th><th>Project</th><th>Customer approved</th><th>Operator state</th><th>Actions</th></tr></thead>
+<tbody id="versions"><tr><td colspan="5">Connect to your private service.</td></tr></tbody>
+</table></div></section>
+<section><h2>Processing jobs</h2><div class="panel scroller"><table>
+<thead><tr><th>Job</th><th>Project</th><th>Stage</th><th>State</th><th>Created</th></tr></thead>
+<tbody id="jobs"><tr><td colspan="5">Connect to your private service.</td></tr></tbody>
+</table></div></section>
+<p>“Geometry reviewed” and “supplier accepted” require genuine manual inspection and evidence. This interface only records the operator's decision.</p>
+<script src="/api-config.js"></script><script type="module" src="/admin.js"></script></body></html>

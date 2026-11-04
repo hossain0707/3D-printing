@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-labelledby="a b">
+<title id="a">MINIMO REAL — photo-based 3D reconstruction platform</title>
+<desc id="b">Animated scientific face wireframe, presented as an illustration rather than a real reconstructed customer model.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0c202c"/><stop offset="1" stop-color="#1d3d48"/></linearGradient><linearGradient id="line" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#91e9d1"/><stop offset="1" stop-color="#5caad1"/></linearGradient></defs>
+<rect width="1200" height="400" rx="18" fill="url(#bg)"/>
+<g stroke="#2a515e" stroke-width="1" opacity=".55">
+<path d="M0 65H1200M0 130H1200M0 195H1200M0 260H1200M0 325H1200"/>
+<path d="M90 0V400M180 0V400M270 0V400M360 0V400M450 0V400M540 0V400M630 0V400M720 0V400M810 0V400M900 0V400M990 0V400M1080 0V400"/>
+</g>
+<text x="60" y="70" font-family="Arial,sans-serif" font-size="13" letter-spacing="3" fill="#7bd4bd">MULTI-VIEW PHOTOGRAMMETRY / ENGINEERING RELEASE</text>
+<text x="55" y="155" font-family="Arial,sans-serif" font-size="76" font-weight="900" letter-spacing="-3" fill="#f3fbf9">MINIMO <tspan fill="#69d6bb">REAL</tspan></text>
+<text x="60" y="206" font-family="Arial,sans-serif" font-size="30" font-weight="700" fill="#e1f8ee">A real person. Reconstructed in 3D.</text>
+<text x="60" y="258" font-family="Arial,sans-serif" font-size="19" fill="#a4c9c9">Image-matched geometry · Photographic textures · Human quality control</text>
+<g font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1" fill="#b9e5db">
+<rect x="60" y="300" width="160" height="40" rx="11" fill="#244b52" stroke="#458b82"/><text x="76" y="326">12–40 PHOTO INPUT</text>
+<rect x="231" y="300" width="137" height="40" rx="11" fill="#244b52" stroke="#458b82"/><text x="248" y="326">GPU WORKER</text>
+<rect x="379" y="300" width="170" height="40" rx="11" fill="#244b52" stroke="#458b82"/><text x="395" y="326">TEXTURED MODEL</text>
+</g>
+<g transform="translate(965 206)">
+<g fill="none" stroke="url(#line)" stroke-width="1.8">
+<path d="M0-153C-78-152-125-86-125 8C-124 108-75 152 0 179C75 152 124 108 125 8C125-86 78-152 0-153Z"/>
+<path d="M0-153C-38-115-48-23-48 67C-43 121-22 158 0 179M0-153C38-115 48-23 48 67C43 121 22 158 0 179"/>
+<path d="M-112-70C-70-90 70-90 112-70M-125-10C-75-23 75-23 125-10M-120 50C-76 66 76 66 120 50M-86 125C-50 114 50 114 86 125"/>
+<path d="M0-120V178M-112-70L-48 67L0 0L48 67L112-70M-125-10L0 0L125-10M-120 50L0 95L120 50M-86 125L0 178L86 125M-48 67L0 95L48 67"/>
+<path d="M-105-18C-75-42-42-29-25-6M25-6C42-29 75-42 105-18M-28 78C-11 89 11 89 28 78" stroke-width="3"/>
+</g>
+<g fill="#90f9d8"><circle cx="-125" cy="8" r="4"/><circle cx="125" cy="8" r="4"/><circle cy="-153" r="4"/><circle cy="179" r="4"/></g>
+<animateTransform attributeName="transform" type="translate" values="965 206;965 198;965 206" dur="4.5s" repeatCount="indefinite"/>
+</g>
+<text x="780" y="375" font-family="Arial,sans-serif" font-size="10" letter-spacing="1.5" fill="#81aaae">SCHEMATIC ART / NOT A SCAN OUTPUT</text>
+</svg>
