@@ -6,6 +6,7 @@ import threading
 from datetime import datetime, timezone
 from .db import connect, initialize
 from .photogrammetry import run_reconstruction
+from .preflight import inspect
 from .settings import Settings
 
 logger=logging.getLogger(__name__)
@@ -72,8 +73,9 @@ def main():
     logging.basicConfig(level=logging.INFO)
     settings=Settings.load()
     initialize(settings.data_dir)
-    if not shutil.which(settings.colmap) or not shutil.which(settings.blender):
-        raise SystemExit("COLMAP and Blender must be installed before starting reconstruction worker")
+    preflight=inspect(settings)
+    if not preflight["processing_host_ready_for_pilot"]:
+        raise SystemExit("GPU worker preflight failed. Run: python -m minimo.preflight")
     threading.Thread(target=heartbeat_forever,args=(settings,),daemon=True).start()
     with connect(settings.data_dir) as db:
         db.execute("UPDATE jobs SET state='queued',stage='worker_restart' WHERE state='running'")

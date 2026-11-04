@@ -25,6 +25,19 @@ proprietary paid photo-to-avatar service.
 - COLMAP CLI: https://colmap.github.io/cli.html
 - Blender: https://www.blender.org/download/
 
+## Validate the GPU host first
+
+After installing CUDA-compatible COLMAP and Blender, run:
+
+~~~bash
+PYTHONPATH=services/python python -m minimo.preflight
+~~~
+
+This checks the installed commands, Blender's OBJ and glTF operators, NVIDIA GPU
+visibility and disk capacity. It deliberately does **not** claim that dense
+reconstruction works until real images are successfully processed. The worker
+refuses to start if the required processing-host preflight fails.
+
 ## Local installation
 
 ~~~bash

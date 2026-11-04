@@ -173,6 +173,7 @@ Read **[Python backend deployment and security](docs/PYTHON-BACKEND.md)** for th
 npm test
 node --check app.js
 python -m pytest services/python/tests -q
+PYTHONPATH=services/python python -m minimo.preflight  # GPU host only
 ~~~
 
 Tests validate input security and API contracts with **mocked external reconstruction**. They cannot verify actual likeness, CUDA throughput, supplier acceptance, or physical output. The CI badge should not be interpreted as certification.
