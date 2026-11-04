@@ -36,3 +36,8 @@ The public deployment is a **real functioning customer design preview and print-
 
 ## Security policy
 Never store client photographs in a public repository or Vercel source bundle. Store in private authenticated storage only after consent and a retention policy. Do not include service-role keys, signing keys or payment credentials in browser JavaScript or public env variables.
+
+
+## Python service implementation update (November 2026)
+
+A FastAPI service, private image storage, owner-protected project versions, worker queue and restricted operator console are now present in the repository. They are **not publicly hosted**, and **do not** include a payment gateway or durable customer commerce orders. The static Vercel customer demo remains usable independently. See [Python Backend Operations](PYTHON-BACKEND.md).

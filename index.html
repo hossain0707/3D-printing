@@ -85,6 +85,10 @@
               <label>Base inscription <input type="text" id="inscription" maxlength="18" placeholder="Optional name"/></label>
             </div>
             <div class="creator-actions"><button id="regenerate" type="button" class="btn btn-outline">↻ Regenerate look</button><button id="approve" type="button" class="btn btn-coral">♡ Approve design</button></div>
+            <div id="python-panel" class="python-panel" hidden>
+              <button id="python-generate" class="btn btn-dark" type="button">Generate with Python</button>
+              <span id="python-state" role="status" aria-live="polite">Python backend not configured</span>
+            </div>
             <p class="mini-disclaimer">Changes are applied to a real 3D template. AI landmarks run on-device when available; absent/hidden details are artistically estimated. This is not photorealistic reconstruction.</p>
           </div>
           <div class="preview-panel reveal">
@@ -120,5 +124,6 @@
   </main>
   <footer class="footer"><div class="section-wrap footer-inner"><div><a class="brand" href="#top"><span class="brand-mark"><i></i><i></i><i></i></span><span>minimo<span class="brand-period">.</span></span></a><p>Little you. Limitless joy.<br/>A custom character atelier concept.</p></div><div class="footer-links"><a href="#how">Process</a><a href="#studio">Create</a><a href="#faq">FAQ</a><a href="https://github.com/hossain0707/3D-printing" target="_blank" rel="noopener">GitHub ↗</a></div><div class="footer-copy">© 2026 MINIMO Studio concept<br/>Built for the 3D-printing project.</div></div></footer>
   <div id="toast" class="toast" aria-live="polite"></div>
+  <script src="/api-config.js"></script>
   <script type="module" src="/app.js"></script>
 </body></html>

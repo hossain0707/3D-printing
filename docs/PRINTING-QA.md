@@ -53,3 +53,16 @@
 [ ] Color proof approved by customer
 
 **Pilot sample acceptance is required before advertising fixed physical delivery dates.**
+
+
+## Optional automated diagnostic report with Blender
+
+This script generates a read-only JSON report of boundaries, per-component manifold flags and overall dimensions:
+
+~~~bash
+blender --background --factory-startup \
+  --python tools/blender/inspect_print_candidate.py -- \
+  model.obj review-report.json
+~~~
+
+Inspect the JSON report and manually perform supplier-specific union/remesh, thickness, texture and color proofing. **Passing the report does not certify a model for physical manufacturing.**

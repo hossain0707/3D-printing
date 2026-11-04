@@ -1,0 +1,45 @@
+name: minimo-studio
+services:
+  api:
+    build:
+      context: .
+      dockerfile: services/python/Dockerfile
+    env_file: .env
+    environment:
+      MINIMO_DATA_DIR: /data
+    ports:
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - minimo_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD","python","-c","import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/api/v1/health',timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  worker:
+    build:
+      context: .
+      dockerfile: services/python/Dockerfile
+    command: ["python","-m","minimo.worker"]
+    env_file: .env
+    environment:
+      MINIMO_DATA_DIR: /data
+    volumes:
+      - minimo_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      api:
+        condition: service_started
+volumes:
+  minimo_data:

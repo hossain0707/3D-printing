@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from "node:fs";
 import test from "node:test";
 const read = p=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 test("all static entrypoints exist",()=>{
-  for(const name of ["index.html","styles.css","app.js","vercel.json","README.md","docs/ARCHITECTURE.md","docs/PRINTING-QA.md","docs/GO-LIVE.md"]){
+  for(const name of ["index.html","styles.css","app.js","api-config.js","admin.html","admin.js","vercel.json","README.md","docs/ARCHITECTURE.md","docs/PYTHON-BACKEND.md","docs/PRINTING-QA.md","docs/GO-LIVE.md","services/python/minimo/app.py","services/python/minimo/worker.py","services/python/minimo/geometry.py"]){
     assert.ok(existsSync(new URL("../"+name,import.meta.url)),name+" missing");
   }
 });

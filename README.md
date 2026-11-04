@@ -132,7 +132,8 @@ flowchart TB
 | Color analysis | Browser Canvas | Approximate color sampling |
 | Packaging | GLTFExporter, OBJ/MTL, PNG, JSZip | Preview and print-candidate ZIP |
 | Deployment | Vercel static hosting | Production HTTPS site |
-| Future service layer | Secure API, PostgreSQL, private object storage, durable workers | Persistent order and manufacturing management **not yet active** |
+| Python backend | FastAPI, Python worker, SQLite, trimesh | Implemented as a separate local/self-hosted service; not yet hosted |
+| Future commerce | Hosted payments, verified accounts, order database, shipping | Not yet active |
 
 Explore the complete [architecture documentation](docs/ARCHITECTURE.md), including trust boundaries and a proposed commerce service.
 
@@ -191,6 +192,55 @@ The smoke test verifies essential files and source hooks, not full browser funct
 4. For your own production use, connect Vercel Git integration so future GitHub commits trigger updates.
 
 **Current public deployment:** **https://minimo-3d-printing.vercel.app/**. This deployment is online, but automatic GitHub-to-Vercel synchronization has **not yet been configured** for this repo.
+
+
+## Python processing and operator workflow
+
+The repository now includes a **real Python service**, a private persistence layer, an independent CPU worker, and an operator review interface. It is **not yet deployed to a public server**; the existing Vercel website remains a local-browser demo until you configure an HTTPS API URL.
+
+| Python subsystem | Implementation |
+|:--|:--|
+| HTTP API | FastAPI with strictly validated requests |
+| Private photo intake | MIME and image decoding checks, 8 MB limit, EXIF-stripped JPEG storage |
+| Owner access | Per-project random tokens, server-side HMAC token hashes |
+| Persistent job records | SQLite WAL on a dedicated persistent disk; single-host design |
+| Generation queue | Separate resumable CPU worker process |
+| Chibi geometry | Python + NumPy + trimesh (not pretrained photo-to-3D reconstruction) |
+| Export | GLB + metric OBJ/MTL/flat-color PNGs + manifest ZIP |
+| Server approval | Owner-token-protected selected version |
+| Operator management | Admin-key-protected queue, version download and status transitions |
+| Privacy | Project deletion endpoint, per-project access, private artifact storage |
+| Manufacturing QA | Blender diagnostics CLI; manual geometry repair and material proof still required |
+
+### Running the Python service
+
+**Recommended:** use Docker Compose with a persistent named volume:
+
+~~~bash
+cp .env.example .env
+# Configure both secrets in .env using 32+ random characters.
+# Keep public generation disabled until you secure the deployment and consent flow.
+docker compose up --build -d
+docker compose logs -f worker
+~~~
+
+The service binds to **127.0.0.1:8001** on the host; place it behind an HTTPS reverse proxy when publishing it. Do not run this disk-backed job queue inside ephemeral Vercel Functions.
+
+**Detailed setup:** [Python Backend Operations](docs/PYTHON-BACKEND.md).
+
+### Connecting the live website
+
+The frontend reads \`window.MINIMO_API_URL\` from [\`api-config.js\`](api-config.js). This defaults to an empty string, so the hosted website continues to use the browser-only demonstration until the backend exists.
+
+Once you have a **real HTTPS API hostname**, set that public API **origin only** in \`api-config.js\`, configure the backend CORS allowlist for the customer website, and redeploy the static website. Never expose operator credentials or server secrets there.
+
+With Python connected, the customer can select **Generate with Python**, inspect the server-generated GLB preview, approve that version via the API, and download the server-generated manufacturing ZIP. The worker must be running.
+
+**Operator console:** [\`/admin.html\`](https://minimo-3d-printing.vercel.app/admin.html), available as a static interface but nonfunctional without a Python API URL and a private operator key. It does not process payments.
+
+> [!WARNING]
+> The Python worker is **CPU-first and template-based**. A local Python backend does not magically infer hidden anatomy, detailed clothing texture or exact customer likeness. The exported model is a **print candidate**, not a factory-approved product. Validation, payment, secure order checkout, backup/retention policies, real full-color samples and fulfillment remain launch gates.
+
 
 ## Manufacturing handoff
 

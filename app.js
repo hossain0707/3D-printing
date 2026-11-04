@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import JSZip from "https://esm.sh/jszip@3.10.1";
 
 const $ = (selector) => document.querySelector(selector);
@@ -161,6 +162,7 @@ function toast(message){
   clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),4000);
 }
 function markDirty(){
+  remote.versionId = null; remote.approved = false; remote.serial++;
   state.version++;
   state.approved=null;
   $("#approval-info").hidden=true;
@@ -178,10 +180,23 @@ for(const [id,key] of [["#hair","hair"],["#pose","pose"],["#size","size"],["#ins
   });
 }
 $("#regenerate").addEventListener("click",()=>{
+  if(remote.busy){toast("Python generation is processing; finish this job first.");return;}
   state.seed+=7+Math.floor(Math.random()*999);
   markDirty();toast("New look generated · review before approving");
+  if(remote.base && latestPhotoFile) runPythonGeneration().catch(err=>toast(err.message));
 });
-$("#approve").addEventListener("click",()=>{
+$("#approve").addEventListener("click",async()=>{
+  if(remote.busy){toast("Please finish the current generation first.");return;}
+  if(remote.base && latestPhotoFile && !remote.versionId){
+    toast("Generate and review your Python 3D model before approving.");return;
+  }
+  if(remote.base && remote.versionId){
+    try{
+      const endpoint="/api/v1/projects/"+remote.projectId+"/versions/"+remote.versionId+"/approve";
+      await pythonFetch(endpoint,{method:"POST"});
+      remote.approved=true;
+    }catch(error){toast("Server approval failed: "+error.message);return;}
+  }
   state.approved={...state,approved:null, approvedAt:new Date().toISOString(),orderToken:crypto.randomUUID?.()||String(Date.now())};
   $("#approval-info").hidden=false;
   $("#approval-detail").textContent="Version "+state.version+" · "+state.size+" mm · ready for operator inspection";
@@ -220,6 +235,8 @@ async function detectFace(img){
   }catch(err){console.warn("Face landmarks optional fallback:",err);return null;}
 }
 async function analyzePhoto(file){
+  latestPhotoFile=file;
+  remote.projectId=null;remote.token=null;remote.versionId=null;remote.approved=false;
   if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw Error("Please upload JPG, PNG or WEBP.");
   if(file.size>8*1024*1024)throw Error("Photo must be 8 MB or smaller.");
   const url=URL.createObjectURL(file);
@@ -319,6 +336,20 @@ async function glbExport(group){
 }
 $("#export").addEventListener("click",async()=>{
   if(!state.approved){toast("Approve the current design first.");return;}
+  if(remote.base && remote.versionId && remote.approved){
+    const button=$("#export");button.disabled=true;button.textContent="Downloading approved Python package…";
+    try{
+      const response=await pythonFetch("/api/v1/projects/"+remote.projectId+
+        "/versions/"+remote.versionId+"/package");
+      const blob=await response.blob(),url=URL.createObjectURL(blob);
+      const a=document.createElement("a");a.href=url;
+      a.download="minimo-python-approved-"+state.size+"mm.zip";document.body.append(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),20000);
+      toast("Server-created print candidate downloaded. Supplier validation is still mandatory.");
+    }catch(err){toast("Download failed: "+err.message);}
+    finally{button.disabled=false;button.textContent="Download production package ↓";}
+    return;
+  }
   const button=$("#export");button.disabled=true;button.textContent="Preparing 3D print candidate…";
   try{
     const zip=new JSZip();
@@ -347,6 +378,99 @@ $("#export").addEventListener("click",async()=>{
   }catch(e){console.error(e);toast("Export failed: "+e.message);}
   finally{button.disabled=!state.approved;button.textContent="Download production package ↓";}
 });
+
+
+// The Python processing service is an optional, independently deployed API.
+// The hosted Vercel website remains a functional LOCAL DESIGN DEMO when it is unavailable.
+const remote={
+  base:String(window.MINIMO_API_URL||"").trim().replace(/\/$/,""),
+  projectId:null,token:null,versionId:null,approved:false,busy:false,serial:0
+};
+let latestPhotoFile=null;
+const pythonPanel=$("#python-panel"),pythonButton=$("#python-generate"),pythonState=$("#python-state");
+if(!remote.base){
+  pythonPanel.hidden=true;
+}else{
+  pythonPanel.hidden=false;
+  pythonState.textContent="Checking secure Python generator…";
+  fetch(remote.base+"/api/v1/health",{cache:"no-store"})
+    .then(r=>r.ok?r.json():Promise.reject(Error("Service unavailable")))
+    .then(data=>{pythonState.textContent=data.generation_enabled?
+      "Python CPU generator ready":"Python generator not accepting public jobs";})
+    .catch(()=>{pythonState.textContent="Backend offline. Local preview remains available.";});
+  pythonButton.addEventListener("click",()=>runPythonGeneration().catch(error=>toast(error.message)));
+}
+async function pythonFetch(path,init={}){
+  if(!remote.base)throw Error("Python backend is not configured");
+  const headers={...(init.headers||{})};
+  if(remote.token)headers["X-Project-Token"]=remote.token;
+  const response=await fetch(remote.base+path,{...init,headers,cache:"no-store"});
+  if(!response.ok){
+    let msg="HTTP "+response.status;
+    try{const data=await response.json();msg=typeof data.detail==="string"?data.detail:msg;}catch{}
+    throw Error(msg);
+  }
+  return response;
+}
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function runPythonGeneration(){
+  if(remote.busy){toast("A generation is already running.");return;}
+  if(!latestPhotoFile){toast("Upload a photograph before starting Python generation.");return;}
+  remote.busy=true;pythonButton.disabled=true;
+  const serial=++remote.serial;
+  try{
+    if(!remote.projectId){
+      pythonState.textContent="Uploading privately to your configured Python service…";
+      const payload=new FormData();payload.append("photo",latestPhotoFile,latestPhotoFile.name);
+      const response=await pythonFetch("/api/v1/projects",{method:"POST",body:payload});
+      const project=await response.json();
+      remote.projectId=project.project_id;remote.token=project.project_token;
+    }
+    pythonState.textContent="Queued for Python CPU generation…";
+    const payload={
+      style:state.style,hair:state.hair,pose:state.pose,size_mm:state.size,seed:state.seed,
+      inscription:state.inscription,colors:{
+        skin:state.skin,hair:state.hairColor,top:state.topColor,bottom:state.bottomColor
+      }
+    };
+    const id=remote.projectId;
+    const submit=await pythonFetch("/api/v1/projects/"+id+"/generate",{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)
+    });
+    const {job_id,version_id}=await submit.json();
+    let done=false;
+    for(let i=0;i<60;i++){
+      if(serial!==remote.serial)throw Error("The design changed while processing; regenerate again.");
+      await pause(1500);
+      const response=await pythonFetch("/api/v1/projects/"+id+"/jobs/"+job_id);
+      const job=await response.json();
+      pythonState.textContent="Python worker: "+job.status+" · design version "+state.version;
+      if(job.status==="failed")throw Error(job.error||"Generation failed");
+      if(job.status==="completed"){done=true;break;}
+    }
+    if(!done)throw Error("Python worker did not finish. Check worker status before retrying.");
+    const preview=await pythonFetch("/api/v1/projects/"+id+"/versions/"+version_id+"/preview");
+    const glb=await preview.arrayBuffer();
+    const gltf=await new Promise((resolve,reject)=>new GLTFLoader().parse(glb,"",resolve,reject));
+    if(serial!==remote.serial)throw Error("The design changed before preview arrived.");
+    const model=gltf.scene;
+    let bounds=new THREE.Box3().setFromObject(model);
+    const modelHeight=bounds.max.y-bounds.min.y;
+    if(!(modelHeight>0))throw Error("Backend returned an invalid 3D model.");
+    model.scale.setScalar(6.55/modelHeight);
+    bounds=new THREE.Box3().setFromObject(model);
+    model.position.y-=bounds.min.y;
+    studio.scene.remove(studio.model);disposeModel(studio.model);
+    studio.model=model;studio.scene.add(model);displayedModel=model;
+    remote.versionId=version_id;remote.approved=false;
+    state.approved=null;$("#approval-info").hidden=true;$("#export").disabled=true;
+    $("#version-label").textContent="PYTHON · VERSION "+String(state.version).padStart(2,"0");
+    pythonState.textContent="Python 3D preview ready · rotate, review and approve";
+    toast("Python-generated 3D preview is ready. Review before approval.");
+  }finally{
+    remote.busy=false;pythonButton.disabled=false;
+  }
+}
 
 if("IntersectionObserver" in window){
   const io=new IntersectionObserver(entries=>entries.forEach(entry=>{

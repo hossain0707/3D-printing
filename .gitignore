@@ -3,3 +3,13 @@ node_modules/
 .vercel/
 .env*
 !.env.example
+
+# Local customer data, tokens, output artifacts and Python caches
+data/
+*.sqlite3
+*.sqlite3-*
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+*.zip

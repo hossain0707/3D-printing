@@ -86,3 +86,22 @@ flowchart LR
 - Procedural meshes contain interpenetrating closed parts that may need Boolean unions / voxel remeshing.
 - CDNs are current runtime dependencies; offline mode is not supported.
 - Browser-only approval is not persisted across devices and cannot be trusted as an order record.
+
+## Implemented Python service (new)
+
+The Python code under `services/python/minimo/` adds a **separate self-hosted** FastAPI API, persistent project/version/job metadata, project tokens, a CPU geometry worker, and private zip/GLB delivery. It is deliberately absent from the static Vercel runtime until a separately managed server is deployed.
+
+- `app.py`: validated photo intake, project authorization, queue creation, job polling, approvals, admin review, deletion.
+- `worker.py`: durable job processing; interrupted running jobs are re-queued after a worker restart.
+- `geometry.py`: NumPy/trimesh chibi mesh assembly, flat-color texture export, metric dimensions, GLB and OBJ/MTL/PNG.
+- `db.py`: SQLite WAL and single-host schema.
+- `settings.py`: fail-closed production secrets, allowed origins and disabled-by-default public generation.
+- `admin.html`: browser-based operator console that requires a separate admin key.
+- `tools/blender/inspect_print_candidate.py`: read-only mesh diagnostic report, *not* printer approval.
+
+### Security and scaling limits
+
+The current Python service is a strong **single-host foundation**, but cannot be called multi-region production infrastructure. It still needs HTTPS termination/WAF, trusted reverse-proxy headers, durable offsite backups, retention policy, operator key management/rotation, customer accounts, real payments and SQL migration tooling for scaling. SQLite + a single worker should **not** be used as a distributed queue.
+
+See [Python Backend Operations](PYTHON-BACKEND.md).
+
