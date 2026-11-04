@@ -53,6 +53,12 @@ CREATE TABLE IF NOT EXISTS versions(
 CREATE INDEX IF NOT EXISTS photos_project_idx ON photos(project_id);
 CREATE INDEX IF NOT EXISTS jobs_project_idx ON jobs(project_id, created_at);
 CREATE INDEX IF NOT EXISTS versions_project_idx ON versions(project_id, created_at);
+CREATE TABLE IF NOT EXISTS worker_heartbeat(
+  id INTEGER PRIMARY KEY CHECK(id=1),
+  last_seen TEXT NOT NULL,
+  colmap_available INTEGER NOT NULL,
+  blender_available INTEGER NOT NULL
+);
 """
 
 

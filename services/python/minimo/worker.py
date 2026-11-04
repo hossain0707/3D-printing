@@ -2,6 +2,7 @@
 import logging
 import shutil
 import time
+import threading
 from datetime import datetime, timezone
 from .db import connect, initialize
 from .photogrammetry import run_reconstruction
@@ -55,12 +56,25 @@ def purge_expired(settings):
         shutil.rmtree(settings.data_dir/"projects"/pid,ignore_errors=True)
     return len(ids)
 
+def heartbeat_forever(settings):
+    while True:
+        with connect(settings.data_dir) as db:
+            db.execute(
+                "INSERT INTO worker_heartbeat(id,last_seen,colmap_available,blender_available) VALUES(1,?,?,?) "
+                "ON CONFLICT(id) DO UPDATE SET last_seen=excluded.last_seen,"
+                "colmap_available=excluded.colmap_available,blender_available=excluded.blender_available",
+                (now(), int(bool(shutil.which(settings.colmap))), int(bool(shutil.which(settings.blender))))
+            )
+        time.sleep(10)
+
+
 def main():
     logging.basicConfig(level=logging.INFO)
     settings=Settings.load()
     initialize(settings.data_dir)
     if not shutil.which(settings.colmap) or not shutil.which(settings.blender):
         raise SystemExit("COLMAP and Blender must be installed before starting reconstruction worker")
+    threading.Thread(target=heartbeat_forever,args=(settings,),daemon=True).start()
     with connect(settings.data_dir) as db:
         db.execute("UPDATE jobs SET state='queued',stage='worker_restart' WHERE state='running'")
     last_purge=0

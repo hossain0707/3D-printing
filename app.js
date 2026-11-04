@@ -137,12 +137,12 @@ async function checkServer(){
   }
   try{
     const info=await (await api("/api/v2/health")).json();
-    processingOnline=!!(info.upload_enabled&&info.colmap_installed&&info.blender_installed);
+    processingOnline=!!(info.upload_enabled&&info.worker_online&&info.colmap_installed&&info.blender_installed);
     $("#backend-badge").textContent=processingOnline?"PROCESSING ONLINE":"PROCESSING NOT READY";
     $("#backend-badge").className="availability "+(processingOnline?"online":"offline");
     stateText(processingOnline?
       "Processing server connected. Capture enough real photographs, then submit.":
-      "Processing is not enabled or the COLMAP / Blender tools are unavailable on the server.",
+      "Realistic processing is unavailable: no live GPU worker, missing native tools, or uploads are disabled.",
       !processingOnline);
   }catch(error){
     processingOnline=false;

@@ -62,6 +62,18 @@ def fingerprint(token: str) -> str:
                     token.encode("utf-8"), hashlib.sha256).hexdigest()
 
 
+def get_worker_status() -> dict:
+    with connect(settings.data_dir) as db:
+        row = db.execute("SELECT * FROM worker_heartbeat WHERE id=1").fetchone()
+    if row is None:
+        return {"worker_online": False, "colmap_installed": False, "blender_installed": False}
+    age = (datetime.now(timezone.utc) - datetime.fromisoformat(row["last_seen"])).total_seconds()
+    online = 0 <= age < 90
+    return {"worker_online": online,
+            "colmap_installed": bool(online and row["colmap_available"]),
+            "blender_installed": bool(online and row["blender_available"])}
+
+
 def owner_token(x_project_token: Annotated[str | None, Header()] = None) -> str | None:
     return x_project_token
 
@@ -123,8 +135,7 @@ def health():
         "status": "ok",
         "pipeline": "real_multi_view_photogrammetry",
         "upload_enabled": settings.enable_uploads,
-        "colmap_installed": bool(shutil.which(settings.colmap)),
-        "blender_installed": bool(shutil.which(settings.blender)),
+        **get_worker_status(),
         "payment_enabled": False,
         "printer_certified": False,
         "min_photos": MIN_PHOTOS,
@@ -159,6 +170,9 @@ async def create_project(request: Request,
                          photos: list[UploadFile] = File(...)):
     if not settings.enable_uploads:
         raise HTTPException(503, "Private image intake is not enabled on the processing server")
+    worker = get_worker_status()
+    if not (worker["worker_online"] and worker["colmap_installed"] and worker["blender_installed"]):
+        raise HTTPException(503, "GPU reconstruction worker is not online")
     if not consent:
         raise HTTPException(422, "Consent to process photographs is required")
     if not MIN_PHOTOS <= len(photos) <= MAX_PHOTOS:
@@ -231,8 +245,9 @@ class ProductionUpdate(BaseModel):
 def reconstruct(pid: str, body: ReconstructionRequest,
                 token: str | None = Depends(owner_token)):
     authorize(pid, token)
-    if not shutil.which(settings.colmap) or not shutil.which(settings.blender):
-        raise HTTPException(503, "3D reconstruction binaries are not installed on this server")
+    worker = get_worker_status()
+    if not (worker["worker_online"] and worker["colmap_installed"] and worker["blender_installed"]):
+        raise HTTPException(503, "GPU reconstruction worker is not online")
     with connect(settings.data_dir) as db:
         db.execute("BEGIN IMMEDIATE")
         active = db.execute("SELECT COUNT(*) AS n FROM jobs WHERE project_id=? AND state IN ('queued','running')", (pid,)).fetchone()["n"]

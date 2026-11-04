@@ -25,6 +25,12 @@ client=TestClient(api_module.app)
 @pytest.fixture(autouse=True)
 def reset_rate():
     api_module.RATE.clear()
+    with api_module.connect(api_module.settings.data_dir) as db:
+        db.execute(
+            "INSERT INTO worker_heartbeat(id,last_seen,colmap_available,blender_available) VALUES(1,?,1,1) "
+            "ON CONFLICT(id) DO UPDATE SET last_seen=excluded.last_seen,colmap_available=1,blender_available=1",
+            (api_module.utc(),)
+        )
 
 
 def shots(count=12):
@@ -79,13 +85,15 @@ def test_private_project_worker_api(monkeypatch):
     assert client.get(url,headers=owner(project)).json()["image_count"]==12
 
     # Real processing must fail closed if COLMAP and Blender are unavailable.
-    monkeypatch.setattr(api_module.shutil,"which",lambda binary:None)
+    with api_module.connect(api_module.settings.data_dir) as db:
+        db.execute("UPDATE worker_heartbeat SET last_seen=? WHERE id=1", ("2020-01-01T00:00:00+00:00",))
     denied=client.post(url+"/reconstruct",json={"target_height_mm":100},headers=owner(project))
     assert denied.status_code==503
 
-    # Unit tests mock ONLY the external GPU binary availability and worker IO.
+    # Unit tests mock ONLY the external GPU worker output.
     # No synthetic geometry is shipped as an actual application result.
-    monkeypatch.setattr(api_module.shutil,"which",lambda binary:"/opt/test-bin/"+binary)
+    with api_module.connect(api_module.settings.data_dir) as db:
+        db.execute("UPDATE worker_heartbeat SET last_seen=? WHERE id=1",(api_module.utc(),))
     started=client.post(url+"/reconstruct",json={"target_height_mm":100},headers=owner(project))
     assert started.status_code==202,started.text
     job=started.json()
